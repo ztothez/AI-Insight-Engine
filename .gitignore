@@ -17,3 +17,24 @@ __pycache__/
 .DS_Store
 .idea/
 .vscode/
+
+# Add these:
+
+# Pytest / coverage
+.pytest_cache/
+htmlcov/
+.coverage
+
+# Ruff / linting cache
+.ruff_cache/
+
+# Distribution / packaging
+dist/
+build/
+*.egg-info/
+
+# Logs
+*.log
+
+# Docker
+*.env.docker
