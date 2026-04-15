@@ -26,8 +26,6 @@ __pycache__/
 .idea/
 .vscode/
 
-# Add these:
-
 # Pytest / coverage
 .pytest_cache/
 htmlcov/
@@ -43,6 +41,3 @@ build/
 
 # Logs
 *.log
-
-# Docker
-*.env.docker
