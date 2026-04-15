@@ -6,6 +6,14 @@ venv/
 .env
 .env.*
 
+# Docker
+*.env.docker
+docker-compose.override.yml
+
+# Database
+*.sql
+*.dump
+
 # Python
 __pycache__/
 *.py[cod]
