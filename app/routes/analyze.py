@@ -1,28 +1,34 @@
 import httpx
+from loguru import logger
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.schemas.analyze import AnalyzeRequest, AnalyzeResponse, QualityScore
 from app.db.database import get_db
 from app.db.models import AnalysisRequest
+from app.core.limiter import limiter
+from fastapi import Request
 
 router = APIRouter()
 url = "https://httpbin.org/get"
 
 @router.post("/analyze", response_model=AnalyzeResponse)
-async def analyze(request: AnalyzeRequest, db: AsyncSession = Depends(get_db)) -> AnalyzeResponse:
+@limiter.limit("5/minute")
+async def analyze(request: Request, body: AnalyzeRequest, db: AsyncSession = Depends(get_db)):
+    logger.debug(f"Received analysis request: {body}")
     db_request = AnalysisRequest(
-        code_snippet=request.code_snippet,
-        language=request.language,
-        strictness_level=request.strictness_level,
+        code_snippet=body.code_snippet,
+        language=body.language,
+        strictness_level=body.strictness_level,
     )
 
     db.add(db_request)
     await db.commit()
     await db.refresh(db_request)
-
+    logger.info(f"saved analysis request to database with id: {db_request.id}")
+    
     async with httpx.AsyncClient() as client:
         response = await client.get(url)
-        print(response.status_code, response.json())
+        logger.info(f"External API response: {response.status_code} - {response.text}")
     return AnalyzeResponse(
         scores=QualityScore(
             security=6.5,
