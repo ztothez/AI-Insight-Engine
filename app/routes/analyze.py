@@ -7,9 +7,9 @@ from app.db.database import get_db
 from app.db.models import AnalysisRequest, AnalysisResponse
 from app.core.limiter import limiter
 from fastapi import Request
+from app.services.llm_service import analyze_code
 
 router = APIRouter()
-url = "https://httpbin.org/get"
 
 @router.post("/analyze", response_model=AnalyzeResponse)
 @limiter.limit("5/minute")
@@ -30,32 +30,38 @@ async def analyze(request: Request, body: AnalyzeRequest, db: AsyncSession = Dep
     logger.info(f"Saved request to DB with id: {db_request.id}")
 
     # STEP 3: Make HTTP call
-    async with httpx.AsyncClient() as client:
-        response = await client.get(url)
-        logger.info(f"External API response: {response.status_code}")
+    try:
+        result = await analyze_code(body.code_snippet, body.language, body.strictness_level)
+        logger.debug(f"Received analysis response: {result}")
+    except httpx.HTTPError as e:
+        logger.error(f"HTTP error during code analysis: {e}")
+        raise
+    except Exception as e:
+        logger.error(f"Unexpected error during code analysis: {e}")
+        raise
 
-    # STEP 4: Build the response object
     analysis_response = AnalyzeResponse(
         scores=QualityScore(
-            security=6.5,
-            maintainability=5.0,
-            readability=5.5,
-            overall=5.5
+            overall=result["overall"],
+            security=result["security"],
+            maintainability=result["maintainability"],
+            readability=result["readability"],
         ),
-        violations=["Hardcoding Values", "Lack of Error Handling", "Inconsistent Naming"],
-        suggestion="Consider using configuration files for hardcoded values.",
+        violations=result["violations"],
+        suggestion=result["suggestion"],
     )
 
     # STEP 5: Save the response to DB
     db_response = AnalysisResponse(
-        request_id=db_request.id,  # links to the request we saved in step 2
-        overall_score=analysis_response.scores.overall,
-        security_score=analysis_response.scores.security,
-        maintainability_score=analysis_response.scores.maintainability,
-        readability_score=analysis_response.scores.readability,
-        violations=",".join(analysis_response.violations),
-        suggestion=analysis_response.suggestion,
+        request_id=db_request.id,
+        overall_score=result["overall"],
+        security_score=result["security"],
+        maintainability_score=result["maintainability"],
+        readability_score=result["readability"],
+        violations=",".join(result["violations"]),
+        suggestion=result["suggestion"],
     )
+
     db.add(db_response)
     await db.commit()
     await db.refresh(db_response)
