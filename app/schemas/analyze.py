@@ -20,3 +20,11 @@ class AnalyzeResponse(BaseModel):
     scores: QualityScore
     violations: List[str]
     suggestion: str
+
+class LLMAnalysisResult(BaseModel):
+    overall: float = Field(ge=0.0, le=10.0)
+    security: float = Field(ge=0.0, le=10.0)
+    maintainability: float = Field(ge=0.0, le=10.0)
+    readability: float = Field(ge=0.0, le=10.0)
+    violations: List[str]
+    suggestion: str

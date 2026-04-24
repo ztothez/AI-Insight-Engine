@@ -1,6 +1,7 @@
 import json
 import httpx
 from app.services.prompt_service import SYSTEM_PROMPT, build_user_prompt
+from app.schemas.analyze import LLMAnalysisResult
 
 async def analyze_code(code_snippet: str, language: str, strictness_level: int) -> dict:
     user_prompt = build_user_prompt(code_snippet, language, strictness_level)
@@ -17,4 +18,8 @@ async def analyze_code(code_snippet: str, language: str, strictness_level: int) 
         response.raise_for_status()
         result = response.json()
         content = result["message"]["content"]
-        return json.loads(content)
+        content = content.strip().removeprefix("```json").removesuffix("```").strip()  
+    parsed = LLMAnalysisResult.model_validate(json.loads(content))
+    return parsed.model_dump()
+
+    
