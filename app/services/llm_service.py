@@ -14,9 +14,6 @@ async def analyze_code(code_snippet: str, language: str, strictness_level: int) 
         "stream": False
     }
 
-    agent_result = await run_agent(code_snippet)
-    print("Agent Result:", agent_result)  # Debugging output
-
     async with httpx.AsyncClient(timeout=60.0) as client:
         response = await client.post("http://localhost:11434/api/chat", json=payload)
         response.raise_for_status()

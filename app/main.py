@@ -12,6 +12,8 @@ from app.core.errors import (
 from app.core.limiter import limiter
 from slowapi.errors import RateLimitExceeded
 from slowapi import _rate_limit_exceeded_handler
+from app.routes.agent import router as agent_router
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -25,7 +27,7 @@ app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 app.add_exception_handler(RequestValidationError, validation_exception_handler)
 app.add_exception_handler(HTTPException, http_exception_handler)
 app.add_exception_handler(Exception, unhandled_exception_handler)
-
+app.include_router(agent_router)
 app.include_router(analyze_router)
 
 @app.get("/health")

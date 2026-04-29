@@ -19,6 +19,11 @@ async def run_agent(code_snippet: str) -> str:
     return output
 
 def validate_agent_input(code_snippet: str) -> None:
+    if not code_snippet.strip():
+        raise ValueError("Code snippet cannot be empty.")
+    if len(code_snippet) > 10000:
+        raise ValueError("Code snippet is too long.")
+
     BLOCKED_PHRASES = [
     "ignore previous instructions",
     "disregard all prior directives", 
