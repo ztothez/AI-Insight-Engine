@@ -14,6 +14,10 @@ docker-compose.override.yml
 *.sql
 *.dump
 
+# Test files
+test_*.py
+tests/test_*.py
+
 # Python
 __pycache__/
 *.py[cod]
