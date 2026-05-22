@@ -1,3 +1,5 @@
+from sqlalchemy.ext.asyncio import AsyncSession
+from app.db.models import CodeEmbedding
 from together import Together
 from dotenv import load_dotenv
 import os
@@ -10,4 +12,19 @@ def get_embedding(text: str) -> list[float]:
         model="intfloat/multilingual-e5-large-instruct",
         input=text
     )
+
     return response.data[0].embedding
+
+
+async def store_embedding(text: str, doc_id: str, chunk_index: int, db: AsyncSession) -> CodeEmbedding:
+    embedding_vector = get_embedding(text)
+    code_embedding = CodeEmbedding(
+        text=text,
+        embedding=embedding_vector,
+        doc_id=doc_id,
+        chunk_index=chunk_index
+    )
+    db.add(code_embedding)
+    await db.commit()
+    await db.refresh(code_embedding)
+    return code_embedding
