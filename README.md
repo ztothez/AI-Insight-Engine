@@ -1,6 +1,6 @@
 # AI-Insight-Engine
 
-A production-oriented **Code Quality & Security Auditor** built on RAG, LLM agents, and vector search. Analyzes Python code for OWASP Top 10 vulnerabilities, clean code violations, and security risks — grounded in real security literature.
+A production-oriented **Code Quality & Security Auditor** built on RAG, LLM agents, and vector search. Analyzes Python code for OWASP Top 10 vulnerabilities, clean code violations, and security risks, grounded in real security literature.
 
 ## What it does
 
@@ -86,4 +86,4 @@ curl -X POST http://localhost:8000/analyze \
 - **RAG over fine-tuning:** grounding in real security books gives traceable, up-to-date results without training costs
 - **top_k=5:** balances context richness vs prompt size vs latency
 - **Pydantic validation of LLM output:** catches hallucinated or malformed scores before they reach the client
-- **Separate schemas for API vs LLM output:** `AnalyzeResponse` vs `LLMAnalysisResult` — different contracts, different validation rules
+- **Separate schemas for API vs LLM output:** `AnalyzeResponse` vs `LLMAnalysisResult`, different contracts, different validation rules
