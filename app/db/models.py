@@ -2,6 +2,7 @@ from sqlalchemy import Column, Integer, String, Float, DateTime, ForeignKey
 from sqlalchemy.orm import DeclarativeBase
 from pgvector.sqlalchemy import Vector
 
+
 import datetime
 
 class Base(DeclarativeBase):

@@ -39,7 +39,7 @@ async def ingest_document(text: str, doc_id: str, db: AsyncSession) -> list[Code
         embeddings.append(embedding)
     return embeddings
 
-async def retrieve(query: str, db: AsyncSession, top_k: int = 3) -> list[CodeEmbedding]:
+async def retrieve(query: str, db: AsyncSession, top_k: int = 5) -> list[CodeEmbedding]:
     query_vector = get_embedding(query)
     result = await db.execute(
         select(CodeEmbedding)
