@@ -3,9 +3,9 @@ import httpx
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.services.embedding_service import retrieve
 from app.services.prompt_service import SYSTEM_PROMPT, build_user_prompt
-from app.schemas.analyze import LLMAnalysisResult
+from app.schemas.analyze import LLMAnalysisResult, CitationSource
 
-async def analyze_code(code_snippet: str, language: str, strictness_level: int, db: AsyncSession) -> dict:
+async def analyze_code(code_snippet: str, language: str, strictness_level: int, db: AsyncSession) -> tuple[dict, list]:
     # Step 1: Retrieve context
     context_chunks = await retrieve(code_snippet, db)
     context = "\n\n".join([chunk.text for chunk in context_chunks])
@@ -30,5 +30,13 @@ async def analyze_code(code_snippet: str, language: str, strictness_level: int, 
         content = result["message"]["content"]
         content = content.strip().removeprefix("```json").removesuffix("```").strip()
 
-    parsed = LLMAnalysisResult.model_validate(json.loads(content))
-    return parsed.model_dump()
+        parsed = LLMAnalysisResult.model_validate(json.loads(content))
+        citation_sources = [
+        CitationSource(
+            doc_id=chunk.doc_id,
+            chunk_index=chunk.chunk_index,
+            text=chunk.text[:200]
+        )
+        for chunk in context_chunks
+    ]
+    return parsed.model_dump(), citation_sources

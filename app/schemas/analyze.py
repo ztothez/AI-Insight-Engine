@@ -16,10 +16,16 @@ class QualityScore(BaseModel):
     maintainability: float = Field(ge=0.0, le=10.0)
     readability: float = Field(ge=0.0, le=10.0)
 
+class CitationSource(BaseModel):
+    doc_id: str
+    chunk_index: int
+    text: str    
+
 class AnalyzeResponse(BaseModel):
     scores: QualityScore
     violations: List[str]
     suggestion: str
+    sources: List[CitationSource] = []
 
 class LLMAnalysisResult(BaseModel):
     overall: float = Field(ge=0.0, le=10.0)

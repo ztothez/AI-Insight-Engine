@@ -2,7 +2,7 @@ import httpx
 from loguru import logger
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.schemas.analyze import AnalyzeRequest, AnalyzeResponse, QualityScore
+from app.schemas.analyze import AnalyzeRequest, AnalyzeResponse, QualityScore, CitationSource
 from app.db.database import get_db
 from app.db.models import AnalysisRequest, AnalysisResponse
 from app.core.limiter import limiter
@@ -31,7 +31,7 @@ async def analyze(request: Request, body: AnalyzeRequest, db: AsyncSession = Dep
 
     # STEP 3: Make HTTP call
     try:
-        result = await analyze_code(body.code_snippet, body.language, body.strictness_level, db)
+        result, sources = await analyze_code(body.code_snippet, body.language, body.strictness_level, db)
         logger.debug(f"Received analysis response: {result}")
     except httpx.HTTPError as e:
         logger.error(f"HTTP error during code analysis: {e}")
@@ -49,6 +49,7 @@ async def analyze(request: Request, body: AnalyzeRequest, db: AsyncSession = Dep
         ),
         violations=result["violations"],
         suggestion=result["suggestion"],
+        sources=sources,
     )
 
     # STEP 5: Save the response to DB
