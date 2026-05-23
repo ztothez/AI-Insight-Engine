@@ -1,4 +1,5 @@
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import select, text
 from app.db.models import CodeEmbedding
 from together import Together
 from dotenv import load_dotenv
@@ -28,3 +29,21 @@ async def store_embedding(text: str, doc_id: str, chunk_index: int, db: AsyncSes
     await db.commit()
     await db.refresh(code_embedding)
     return code_embedding
+
+async def ingest_document(text: str, doc_id: str, db: AsyncSession) -> list[CodeEmbedding]:
+    from app.services.chunker_service import chunk_text
+    chunks = chunk_text(text)
+    embeddings = []
+    for idx, chunk in enumerate(chunks):
+        embedding = await store_embedding(chunk, doc_id, idx, db)
+        embeddings.append(embedding)
+    return embeddings
+
+async def retrieve(query: str, db: AsyncSession, top_k: int = 3) -> list[CodeEmbedding]:
+    query_vector = get_embedding(query)
+    result = await db.execute(
+        select(CodeEmbedding)
+        .order_by(CodeEmbedding.embedding.op("<=>")(query_vector))
+        .limit(top_k)
+    )
+    return result.scalars().all()

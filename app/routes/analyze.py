@@ -31,7 +31,7 @@ async def analyze(request: Request, body: AnalyzeRequest, db: AsyncSession = Dep
 
     # STEP 3: Make HTTP call
     try:
-        result = await analyze_code(body.code_snippet, body.language, body.strictness_level)
+        result = await analyze_code(body.code_snippet, body.language, body.strictness_level, db)
         logger.debug(f"Received analysis response: {result}")
     except httpx.HTTPError as e:
         logger.error(f"HTTP error during code analysis: {e}")

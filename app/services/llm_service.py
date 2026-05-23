@@ -1,10 +1,19 @@
 import json
 import httpx
+from sqlalchemy.ext.asyncio import AsyncSession
+from app.services.embedding_service import retrieve
 from app.services.prompt_service import SYSTEM_PROMPT, build_user_prompt
 from app.schemas.analyze import LLMAnalysisResult
 
-async def analyze_code(code_snippet: str, language: str, strictness_level: int) -> dict:
-    user_prompt = build_user_prompt(code_snippet, language, strictness_level)
+async def analyze_code(code_snippet: str, language: str, strictness_level: int, db: AsyncSession) -> dict:
+    # Step 1: Retrieve context
+    context_chunks = await retrieve(code_snippet, db)
+    context = "\n\n".join([chunk.text for chunk in context_chunks])
+
+    # Step 2: Build prompt
+    user_prompt = build_user_prompt(code_snippet, language, strictness_level, context)
+
+    # Step 3: Send to Ollama
     payload = {
         "model": "qwen2.5:3b-instruct",
         "messages": [
@@ -19,8 +28,7 @@ async def analyze_code(code_snippet: str, language: str, strictness_level: int) 
         response.raise_for_status()
         result = response.json()
         content = result["message"]["content"]
-        content = content.strip().removeprefix("```json").removesuffix("```").strip()  
+        content = content.strip().removeprefix("```json").removesuffix("```").strip()
+
     parsed = LLMAnalysisResult.model_validate(json.loads(content))
     return parsed.model_dump()
-
-    
