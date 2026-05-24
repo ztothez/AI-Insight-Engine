@@ -40,3 +40,22 @@ class CodeEmbedding(Base):
     doc_id = Column(String, nullable=False)
     chunk_index = Column(Integer, nullable=False)
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
+
+
+class BlockedInput(Base):
+    """Audit log for inputs rejected by the prompt-injection validator.
+
+    Stored server-side only. NEVER expose these rows to API clients —
+    they contain attack payloads and matched-pattern details that would
+    give attackers feedback on what tripped the detector.
+    """
+    __tablename__ = "blocked_inputs"
+
+    id = Column(Integer, primary_key=True, index=True)
+    blocked_at = Column(DateTime, default=datetime.datetime.utcnow, nullable=False, index=True)
+    client_ip = Column(String(45), nullable=True)              # IPv6 max length = 45 chars
+    reason = Column(String(50), nullable=False, index=True)    # RejectionReason enum value
+    matched_pattern = Column(String(100), nullable=True)       # human-readable label
+    input_snippet = Column(String, nullable=False)             # full rejected input
+    input_length = Column(Integer, nullable=False)             # denormalized for fast stats
+    user_agent = Column(String(500), nullable=True)            # helps identify bot patterns
