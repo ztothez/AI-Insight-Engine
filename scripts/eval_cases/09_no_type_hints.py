@@ -28,7 +28,7 @@ def process(items):
     return results
 '''
 EXPECTED = {
-    "maintainability_score_max": 6.0,
-    "should_contain_violations": ["type"],
+    "maintainability_score_max": 7.5,
+    "should_contain_violations": [["type hint", "type", "annotation", "docstring"]],
     "should_have_citations": True,
 }

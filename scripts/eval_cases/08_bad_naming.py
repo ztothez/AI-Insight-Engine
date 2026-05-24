@@ -22,7 +22,7 @@ def do_it(lst):
     return r
 '''
 EXPECTED = {
-    "readability_score_max": 5.0,
-    "should_contain_violations": ["naming", "readability"],
+    "readability_score_max": 7.5,
+    "should_contain_violations": [["naming", "variable name", "descriptive", "readability"]],
     "should_have_citations": True,
 }

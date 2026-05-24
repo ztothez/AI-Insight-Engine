@@ -1,0 +1,702 @@
+[
+  {
+    "id": "sec_sql_injection_01",
+    "category": "security_owasp_a03_injection",
+    "latency_s": 8.36,
+    "actual": {
+      "scores": {
+        "overall": 6.5,
+        "security": 4.0,
+        "maintainability": 8.0,
+        "readability": 9.0
+      },
+      "violations": [
+        "SQL Injection Vulnerability: The query string is formatted using string concatenation, which makes it vulnerable to SQL injection attacks.",
+        "Insecure Database Connection: The database connection is not properly secured, and the connection string is not validated.",
+        "Missing Error Handling: The code does not handle potential errors that may occur during database operations, such as connection failures or query execution errors.",
+        "Insecure Data Retrieval: The code retrieves sensitive data, such as customer information, without proper validation or sanitization."
+      ],
+      "suggestion": "To improve the security and maintainability of the code, consider using parameterized queries or prepared statements to prevent SQL injection attacks. Additionally, implement proper error handling and validation for database operations, and ensure that sensitive data is properly sanitized and validated. Consider using a secure database connection library or framework that provides built-in security features, such as encryption and authentication.",
+      "sources": [
+        {
+          "doc_id": "software_engineering_python",
+          "chunk_index": 1703,
+          "text": " a dict is a common \nfeature in many database connector APIs, even though it is not part of the PEP-249 standards \n(see Frequently Asked Questions there for the reasons why: ( https://peps.python.org/"
+        },
+        {
+          "doc_id": "software_engineering_python",
+          "chunk_index": 1614,
+          "text": "using this code:\n# Code to run if the module is executed directly\nif __name__ == '__main__':\n    with get_env_database_connector() as db:\n        with db.cursor() as cursor:\n            cursor.execute"
+        },
+        {
+          "doc_id": "software_engineering_python",
+          "chunk_index": 1748,
+          "text": "None = None,\n    page_size: int | None = None,\n    page_number: int | None = None,\n    **criteria: Any\n) -> list[APIProductListItem]:\n    # Make a single query to get the relevant products\n    product"
+        },
+        {
+          "doc_id": "software_engineering_python",
+          "chunk_index": 1751,
+          "text": "BaseModel):\n    street_address: str = Field()\n    building_address: str | None = Field()\n    city: str = Field()\n    region_name: str | None = Field()\n    postal_code: str = Field()\n    country: str |"
+        },
+        {
+          "doc_id": "software_engineering_python",
+          "chunk_index": 2242,
+          "text": "         msg = (\n                f'Retrieved {len(artisans)} Artisan '\n                'records, when only one should be '\n                'returned'\n            )\n            logger.error(msg)\n      "
+        }
+      ]
+    },
+    "assertions": [
+      {
+        "assertion": "should_contain_violations",
+        "passed": true,
+        "reason": "all expected substrings found in violations"
+      },
+      {
+        "assertion": "security_score_max",
+        "passed": true,
+        "reason": "scores.security=4.0 <= 5.0"
+      },
+      {
+        "assertion": "should_have_citations",
+        "passed": true,
+        "reason": "citations present: 5"
+      }
+    ],
+    "passed": true
+  },
+  {
+    "id": "sec_xss_01",
+    "category": "security_owasp_a03_injection",
+    "latency_s": 5.53,
+    "actual": {
+      "scores": {
+        "overall": 4.5,
+        "security": 2.0,
+        "maintainability": 6.0,
+        "readability": 8.0
+      },
+      "violations": [
+        "Potential XSS vulnerability due to unsanitized user input",
+        "Lack of input validation for 'name' parameter",
+        "Insecure use of render_template_string with user-controlled data"
+      ],
+      "suggestion": "To fix the potential XSS vulnerability, use Flask's built-in templating engine with Jinja2 and pass the 'name' parameter as a variable to the template. Additionally, validate and sanitize the 'name' parameter to prevent malicious input. Consider using a library like 'MarkupSafe' to escape any user-controlled data.",
+      "sources": [
+        {
+          "doc_id": "software_engineering_python",
+          "chunk_index": 2173,
+          "text": "gs, **kwargs):\n    # The **kwargs is where the oid can be found\n    ...\n@app.route('/api/v1/artisans/', methods=['GET'])\ndef get_artisans_root():\n    ...\n@app.route('/api/v1/artisans/<oid>/', methods="
+        },
+        {
+          "doc_id": "web_security",
+          "chunk_index": 1411,
+          "text": "mport os,sys,urllib2,re\ndef usage(program):\nprint \"PMA3 (Version below 3.3.10.2 and 3.4.3.1) remote code\nexecute exploit\"\n\u00a0\u00a0\u00a0 print \"Usage: %s <PMA_url>\" % program\n\u00a0\u00a0\u00a0 print \"Example: %s http://www.te"
+        },
+        {
+          "doc_id": "web_security",
+          "chunk_index": 1416,
+          "text": "b2.urlopen(url).read())\n\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0 if len(result) == 1:\n\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0 print \"[+] Lucky u! System info: %s\"\u00a0 % result[0]\nprint \"[+] Shellcode is: eval(getenv('HTTP_CODE'));\"\n\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0 else:\n\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0 print "
+        },
+        {
+          "doc_id": "web_security",
+          "chunk_index": 1415,
+          "text": "id, token)\n\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0 url = args[1]+\"/setup/config.php\"\n\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0 # print \"[+]Postdata: %s\" % postdata\n\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0 urllib2.urlopen(url, postdata)\n\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0 print \"[+] All done, pray for your lucky!\"\n\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0 url "
+        },
+        {
+          "doc_id": "software_engineering_python",
+          "chunk_index": 2178,
+          "text": "FASTAPI_RUN_HOST', '127.0.0.1')\nport = int(os.getenv('FASTAPI_RUN_PORT', '5000'))\n@app.get('/api/v1/artisans/{oid}/')\nasync def get_artisan_by_oid(oid: str):\n    # Note that oid is an explicitly defin"
+        }
+      ]
+    },
+    "assertions": [
+      {
+        "assertion": "should_contain_violations",
+        "passed": true,
+        "reason": "all expected substrings found in violations"
+      },
+      {
+        "assertion": "security_score_max",
+        "passed": true,
+        "reason": "scores.security=2.0 <= 5.0"
+      },
+      {
+        "assertion": "should_have_citations",
+        "passed": true,
+        "reason": "citations present: 5"
+      }
+    ],
+    "passed": true
+  },
+  {
+    "id": "sec_command_injection_01",
+    "category": "security_owasp_a03_injection",
+    "latency_s": 6.43,
+    "actual": {
+      "scores": {
+        "overall": 6.5,
+        "security": 4.0,
+        "maintainability": 8.0,
+        "readability": 9.0
+      },
+      "violations": [
+        "Potential command injection vulnerability due to the use of shell=True in subprocess.run",
+        "Lack of input validation for the hostname parameter",
+        "No error handling for the case where the subprocess.run call fails",
+        "Potential denial of service (DoS) vulnerability due to the lack of timeout in the subprocess.run call"
+      ],
+      "suggestion": "To improve the security of this code, consider using the subprocess.run function with the capture_output and text parameters, but avoid using shell=True. Instead, pass the command and its arguments as a list. Additionally, validate the input hostname parameter to prevent potential command injection attacks. Implement error handling to handle cases where the subprocess.run call fails. Consider adding a timeout to the subprocess.run call to prevent potential DoS attacks. For example: result = subprocess.run(['ping', '-c', '3', hostname], capture_output=True, text=True)",
+      "sources": [
+        {
+          "doc_id": "web_security",
+          "chunk_index": 1306,
+          "text": "a n: \"a\" * n + \"!\"\nmaxiter = 50\nmaxtime = 2\n#\n# Python modules used by this program\n#\nimport re\nimport time\nimport sys\n#\n#\u00a0 Main function\n# \ndef main():\n\t\nprint\n\t\nprint \"Python Regular Expression DoS "
+        },
+        {
+          "doc_id": "clean_code_python",
+          "chunk_index": 416,
+          "text": "ls.\"\"\"\n    _RETRY_BACKOFF: int = 5\n    _RETRY_TIMES: int = 3\n    def __init__(self, connector: Connector) -> None:\n        self._connector = connector\n        self.connection = None\n    def deliver_ev"
+        },
+        {
+          "doc_id": "web_security",
+          "chunk_index": 1411,
+          "text": "mport os,sys,urllib2,re\ndef usage(program):\nprint \"PMA3 (Version below 3.3.10.2 and 3.4.3.1) remote code\nexecute exploit\"\n\u00a0\u00a0\u00a0 print \"Usage: %s <PMA_url>\" % program\n\u00a0\u00a0\u00a0 print \"Example: %s http://www.te"
+        },
+        {
+          "doc_id": "web_security",
+          "chunk_index": 1415,
+          "text": "id, token)\n\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0 url = args[1]+\"/setup/config.php\"\n\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0 # print \"[+]Postdata: %s\" % postdata\n\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0 urllib2.urlopen(url, postdata)\n\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0 print \"[+] All done, pray for your lucky!\"\n\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0 url "
+        },
+        {
+          "doc_id": "clean_code_python",
+          "chunk_index": 1262,
+          "text": "\"\"\"\n    def send(self, metric_name, metric_value):\n        if not isinstance(metric_name, str):\n            raise TypeError(\"expected type str for metric_name\")\n        if not isinstance(metric_value,"
+        }
+      ]
+    },
+    "assertions": [
+      {
+        "assertion": "should_contain_violations",
+        "passed": true,
+        "reason": "all expected substrings found in violations"
+      },
+      {
+        "assertion": "security_score_max",
+        "passed": true,
+        "reason": "scores.security=4.0 <= 5.0"
+      },
+      {
+        "assertion": "should_have_citations",
+        "passed": true,
+        "reason": "citations present: 5"
+      }
+    ],
+    "passed": true
+  },
+  {
+    "id": "sec_hardcoded_secret_01",
+    "category": "security_owasp_a07_auth_failures",
+    "latency_s": 4.61,
+    "actual": {
+      "scores": {
+        "overall": 4.5,
+        "security": 2.0,
+        "maintainability": 6.0,
+        "readability": 8.0
+      },
+      "violations": [
+        "Hardcoded API key and secret",
+        "Missing error handling for API requests",
+        "Missing validation for user input",
+        "Potential for unauthorized access due to hardcoded credentials"
+      ],
+      "suggestion": "Consider using environment variables or a secure secrets management system to store API keys and secrets. Implement error handling and input validation to prevent potential security vulnerabilities. Refactor the code to follow secure coding practices and consider using a more secure authentication mechanism.",
+      "sources": [
+        {
+          "doc_id": "web_security",
+          "chunk_index": 1416,
+          "text": "b2.urlopen(url).read())\n\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0 if len(result) == 1:\n\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0 print \"[+] Lucky u! System info: %s\"\u00a0 % result[0]\nprint \"[+] Shellcode is: eval(getenv('HTTP_CODE'));\"\n\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0 else:\n\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0 print "
+        },
+        {
+          "doc_id": "web_security",
+          "chunk_index": 1412,
+          "text": "urllib2.urlopen(args[1]+\"/index.php\").read()\n\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0 r1 = re.findall(\"token=(\\w{32})\", content)\n\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0 r2 = re.findall(\"phpMyAdmin=(\\w{32,40})\", content)\n\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0 if not r1:\n\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0 r1 = re.findal"
+        },
+        {
+          "doc_id": "software_engineering_python",
+          "chunk_index": 2173,
+          "text": "gs, **kwargs):\n    # The **kwargs is where the oid can be found\n    ...\n@app.route('/api/v1/artisans/', methods=['GET'])\ndef get_artisans_root():\n    ...\n@app.route('/api/v1/artisans/<oid>/', methods="
+        },
+        {
+          "doc_id": "software_engineering_python",
+          "chunk_index": 2178,
+          "text": "FASTAPI_RUN_HOST', '127.0.0.1')\nport = int(os.getenv('FASTAPI_RUN_PORT', '5000'))\n@app.get('/api/v1/artisans/{oid}/')\nasync def get_artisan_by_oid(oid: str):\n    # Note that oid is an explicitly defin"
+        },
+        {
+          "doc_id": "web_security",
+          "chunk_index": 1414,
+          "text": "\u00a0\u00a0\u00a0 url = args[1]+uri\n\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0 opener = urllib2.build_opener()\n\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0 opener.addheaders.append(('Cookie', 'phpMyAdmin=%s;\npma_lang=en; pma_mcrypt_iv=ILXfl5RoJxQ%%3D; PHPSESSID=%s;' %\n\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0 (sessioni"
+        }
+      ]
+    },
+    "assertions": [
+      {
+        "assertion": "should_contain_violations",
+        "passed": true,
+        "reason": "all expected substrings found in violations"
+      },
+      {
+        "assertion": "security_score_max",
+        "passed": true,
+        "reason": "scores.security=2.0 <= 5.0"
+      },
+      {
+        "assertion": "should_have_citations",
+        "passed": true,
+        "reason": "citations present: 5"
+      }
+    ],
+    "passed": true
+  },
+  {
+    "id": "sec_broken_access_01",
+    "category": "security_owasp_a01_broken_access",
+    "latency_s": 11.02,
+    "actual": {
+      "scores": {
+        "overall": 4.5,
+        "security": 2.0,
+        "maintainability": 6.0,
+        "readability": 8.0
+      },
+      "violations": [
+        "Missing authentication and authorization checks",
+        "Potential SQL injection vulnerability",
+        "Insecure direct object reference (IDOR) vulnerability",
+        "Lack of input validation and sanitization"
+      ],
+      "suggestion": "To improve the security of this code, consider adding authentication and authorization checks to ensure that only authorized users can access the orders of other users. Additionally, use parameterized queries or an ORM to prevent SQL injection vulnerabilities. Validate and sanitize all user input to prevent IDOR and other vulnerabilities. Consider using a library like Flask-Login or Flask-Security to handle authentication and authorization. For example, you can use the `@login_required` decorator to restrict access to certain routes, and use the `current_user` object to check if the user is authorized to access the orders of another user.",
+      "sources": [
+        {
+          "doc_id": "software_engineering_python",
+          "chunk_index": 2173,
+          "text": "gs, **kwargs):\n    # The **kwargs is where the oid can be found\n    ...\n@app.route('/api/v1/artisans/', methods=['GET'])\ndef get_artisans_root():\n    ...\n@app.route('/api/v1/artisans/<oid>/', methods="
+        },
+        {
+          "doc_id": "software_engineering_python",
+          "chunk_index": 2241,
+          "text": "     )\n        if len(artisans) == 1:\n            result = {\n                'statusCode': 200,\n                'body': artisans[0].model_dump_json()\n            }\n        elif len(artisans) == 0:\n   "
+        },
+        {
+          "doc_id": "software_engineering_python",
+          "chunk_index": 664,
+          "text": "if there are no orders\n    shipping_statuses = {}\n    # Iterate over the orders. For each order, call the\n    # appropriate API and add the results to the statuses\n    # variable:\n    for order in ord"
+        },
+        {
+          "doc_id": "software_engineering_python",
+          "chunk_index": 2240,
+          "text": "         'body': 'No artisan created for request '\n            f'{context.aws_request_id}.'\n        }\n    finally:\n        return response\ndef handle_artisan_get(\n    event: dict, context: object\n) ->"
+        },
+        {
+          "doc_id": "software_engineering_python",
+          "chunk_index": 2178,
+          "text": "FASTAPI_RUN_HOST', '127.0.0.1')\nport = int(os.getenv('FASTAPI_RUN_PORT', '5000'))\n@app.get('/api/v1/artisans/{oid}/')\nasync def get_artisan_by_oid(oid: str):\n    # Note that oid is an explicitly defin"
+        }
+      ]
+    },
+    "assertions": [
+      {
+        "assertion": "should_contain_violations",
+        "passed": true,
+        "reason": "all expected substrings found in violations"
+      },
+      {
+        "assertion": "security_score_max",
+        "passed": true,
+        "reason": "scores.security=2.0 <= 5.0"
+      },
+      {
+        "assertion": "should_have_citations",
+        "passed": true,
+        "reason": "citations present: 5"
+      }
+    ],
+    "passed": true
+  },
+  {
+    "id": "sec_weak_crypto_01",
+    "category": "security_owasp_a02_crypto_failures",
+    "request_error": "Client error '429 Too Many Requests' for url 'http://localhost:8000/analyze'\nFor more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/429",
+    "assertions": [],
+    "passed": false
+  },
+  {
+    "id": "clean_god_function_01",
+    "category": "clean_code_violation",
+    "request_error": "Client error '429 Too Many Requests' for url 'http://localhost:8000/analyze'\nFor more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/429",
+    "assertions": [],
+    "passed": false
+  },
+  {
+    "id": "clean_bad_naming_01",
+    "category": "clean_code_violation",
+    "latency_s": 7.3,
+    "actual": {
+      "scores": {
+        "overall": 6.5,
+        "security": 8.0,
+        "maintainability": 5.0,
+        "readability": 7.0
+      },
+      "violations": [
+        "Variable names are not descriptive",
+        "Function names are not descriptive",
+        "No input validation",
+        "No error handling",
+        "No type hints for function parameters",
+        "No docstrings for functions"
+      ],
+      "suggestion": "Consider using more descriptive variable and function names, add input validation and error handling, use type hints for function parameters, and include docstrings for functions to improve code readability and maintainability. For example, the 'calc' function could be renamed to 'calculate_price_with_tax_and_discount', and the 'do_it' function could be renamed to 'process_price_calculations'. Additionally, consider using a more robust way to handle potential errors, such as using try-except blocks or logging mechanisms.",
+      "sources": [
+        {
+          "doc_id": "clean_code_python",
+          "chunk_index": 1070,
+          "text": "     return self\n    def _update_min(self, new_value: float):\n        if new_value < self.min_price:\n            self.min_price = new_value\n    def _update_max(self, new_value: float):\n        if new_"
+        },
+        {
+          "doc_id": "clean_code_python",
+          "chunk_index": 585,
+          "text": "ogonality. We have a function that calculates a price, including taxes and \ndiscounts, but afterward we want to format the final price that's obtained:\nChapter 3\n[ 121 ]\ndef calculate_price(base_price"
+        },
+        {
+          "doc_id": "clean_code_python",
+          "chunk_index": 1069,
+          "text": "ef _initialize(self):\n        try:\n            first_value = next(self.purchases)\n        except StopIteration:\n            raise ValueError(\"no values provided\")\n        self.min_price = self.max_pri"
+        },
+        {
+          "doc_id": "clean_code_python",
+          "chunk_index": 879,
+          "text": "on(function):\n    @wraps(function)\n    def wrapped(*args, **kwargs):\n        logger.info(\"started execution of %s\", function.__qualname__)\n        return function(*kwargs, **kwargs)\n    return wrapped"
+        },
+        {
+          "doc_id": "clean_code_python",
+          "chunk_index": 1741,
+          "text": "le  \nsignatures  140\nPyPi  369\npytest  301\nfixtures  304\nparameterized tests  303, 304\nreference link  294\ntest cases  302, 303\npytest-cov package  307\nPython, caveats  64\nbuilt-in types, extending  6"
+        }
+      ]
+    },
+    "assertions": [
+      {
+        "assertion": "readability_score_max",
+        "passed": false,
+        "reason": "scores.readability=7.0 exceeds max 5.0 (false negative)"
+      },
+      {
+        "assertion": "should_contain_violations",
+        "passed": false,
+        "reason": "missing expected substrings ['naming', 'readability'] in violations ['Variable names are not descriptive', 'Function names are not descriptive', 'No input validation', 'No error handling', 'No type hints for function parameters', 'No docstrings for functions']"
+      },
+      {
+        "assertion": "should_have_citations",
+        "passed": true,
+        "reason": "citations present: 5"
+      }
+    ],
+    "passed": false
+  },
+  {
+    "id": "clean_no_type_hints_01",
+    "category": "clean_code_violation",
+    "latency_s": 5.55,
+    "actual": {
+      "scores": {
+        "overall": 6.5,
+        "security": 5.0,
+        "maintainability": 7.0,
+        "readability": 8.0
+      },
+      "violations": [
+        "Insecure Direct Object Reference (IDOR) vulnerability in fetch_user function",
+        "Lack of input validation in update_user function",
+        "Potential SQL injection vulnerability in db.get and db.save functions",
+        "Missing error handling in process function",
+        "Unclear variable names in process function"
+      ],
+      "suggestion": "To improve the security of the code, consider adding input validation and sanitization to the update_user function. Additionally, use parameterized queries or prepared statements to prevent SQL injection vulnerabilities. In terms of maintainability, consider adding more descriptive variable names and comments to the process function. To improve readability, consider breaking up long lines of code and using consistent indentation. Consider using a try-except block to handle potential errors in the process function.",
+      "sources": [
+        {
+          "doc_id": "clean_code_python",
+          "chunk_index": 1283,
+          "text": "votes\": set(),\n        }\n    @property\n    def status(self):\n        if self._context[\"downvotes\"]:\n            return MergeRequestStatus.REJECTED\n        elif len(self._context[\"upvotes\"]) >= 2:\n    "
+        },
+        {
+          "doc_id": "software_engineering_python",
+          "chunk_index": 1749,
+          "text": "roduct.artisan_oid for product in products])\n    )\n    # Get those artisans, storing them as a dict by\n    # their oids\n    artisans = {\n        artisan.oid: artisan\n        for artisan in Artisan.get"
+        },
+        {
+          "doc_id": "software_engineering_python",
+          "chunk_index": 2324,
+          "text": "ructure:\n        results = [\n            {\n                key: value for key, value\n                in artisan.model_dump(mode='json').items()\n                if key in LIST_FIELD_NAMES\n            }"
+        },
+        {
+          "doc_id": "software_engineering_python",
+          "chunk_index": 1703,
+          "text": " a dict is a common \nfeature in many database connector APIs, even though it is not part of the PEP-249 standards \n(see Frequently Asked Questions there for the reasons why: ( https://peps.python.org/"
+        },
+        {
+          "doc_id": "software_engineering_python",
+          "chunk_index": 2333,
+          "text": "'\n        f'\"{artisan_oid}\" ({type(artisan_oid).__name__}).'\n    )\n# Get the Artisan objects, keeping track of how\n# long the process takes for metrics purposes\nwith tracker.timer('artisan_db_access')"
+        }
+      ]
+    },
+    "assertions": [
+      {
+        "assertion": "maintainability_score_max",
+        "passed": false,
+        "reason": "scores.maintainability=7.0 exceeds max 6.0 (false negative)"
+      },
+      {
+        "assertion": "should_contain_violations",
+        "passed": false,
+        "reason": "missing expected substrings ['type'] in violations ['Insecure Direct Object Reference (IDOR) vulnerability in fetch_user function', 'Lack of input validation in update_user function', 'Potential SQL injection vulnerability in db.get and db.save functions', 'Missing error handling in process function', 'Unclear variable names in process function']"
+      },
+      {
+        "assertion": "should_have_citations",
+        "passed": true,
+        "reason": "citations present: 5"
+      }
+    ],
+    "passed": false
+  },
+  {
+    "id": "neg_clean_secure_01",
+    "category": "negative_clean_secure_code",
+    "latency_s": 5.25,
+    "actual": {
+      "scores": {
+        "overall": 8.5,
+        "security": 9.0,
+        "maintainability": 8.0,
+        "readability": 9.0
+      },
+      "violations": [
+        "Potential information disclosure through API key environment variable",
+        "Division by zero error handling could be improved",
+        "Logging configuration is incomplete",
+        "Error handling is not comprehensive"
+      ],
+      "suggestion": "Consider using a secure secrets management system for API keys, improve division by zero error handling by providing a default value or alternative calculation, complete logging configuration by setting log levels and handlers, and implement comprehensive error handling using try-except blocks with specific exception types and logging error messages with exc_info.",
+      "sources": [
+        {
+          "doc_id": "software_engineering_python",
+          "chunk_index": 818,
+          "text": "or:\n        logger.error(\n            f'{module_name}::example_function encountered '\n            f'{error.__class__.__name__}: {error}',\n            exc_info=error\n        )\n    except Exception as e"
+        },
+        {
+          "doc_id": "software_engineering_python",
+          "chunk_index": 819,
+          "text": "\n            'debugging message'\n        )\n        logger.info(\n            f'{module_name}::example_function completed '\n            'successfully'\n        )\nAfter wrapping a call to that function in"
+        },
+        {
+          "doc_id": "clean_code_python",
+          "chunk_index": 239,
+          "text": " curious about the \ninternals or differences between different versions of the code, you can check out the \ndis module, and call it with these examples.\nLet's see the example of a function that will t"
+        },
+        {
+          "doc_id": "software_engineering_python",
+          "chunk_index": 817,
+          "text": "ITICAL messages is part of a logging policy, passing the error in the \nexc_info keyword argument will include that error\u2019s information in the log output. \nThis is the default behavior for the logger.e"
+        },
+        {
+          "doc_id": "software_engineering_python",
+          "chunk_index": 2239,
+          "text": "s__.__name__}: {error} while '\n            'trying to create an Artisan'\n        )\n        response = {\n            'statusCode': 400,\n            'body': 'No artisan created for request '\n           "
+        }
+      ]
+    },
+    "assertions": [
+      {
+        "assertion": "should_contain_violations",
+        "passed": false,
+        "reason": "expected no violations, got: ['Potential information disclosure through API key environment variable', 'Division by zero error handling could be improved', 'Logging configuration is incomplete', 'Error handling is not comprehensive']"
+      },
+      {
+        "assertion": "security_score_min",
+        "passed": true,
+        "reason": "scores.security=9.0 >= 7.0"
+      },
+      {
+        "assertion": "maintainability_score_min",
+        "passed": true,
+        "reason": "scores.maintainability=8.0 >= 7.0"
+      },
+      {
+        "assertion": "should_have_citations",
+        "passed": true,
+        "reason": "citations present: 5"
+      }
+    ],
+    "passed": false
+  },
+  {
+    "id": "neg_clean_parameterized_sql_01",
+    "category": "negative_clean_secure_code",
+    "latency_s": 5.96,
+    "actual": {
+      "scores": {
+        "overall": 8.5,
+        "security": 9.0,
+        "maintainability": 8.0,
+        "readability": 9.0
+      },
+      "violations": [
+        "Potential SQL connection leak if an exception occurs before the finally block",
+        "Missing error handling for SQLite database connection and query execution",
+        "Lack of input validation for db_path and user_id parameters"
+      ],
+      "suggestion": "Consider using a context manager to handle the SQLite connection, add try-except blocks to handle potential errors, and validate the input parameters to prevent potential security vulnerabilities. For example, use a try-except block to catch sqlite3.Error exceptions and log or handle the errors accordingly. Additionally, validate the db_path and user_id parameters to ensure they are not empty or None, and consider using a whitelist approach to validate the input parameters.",
+      "sources": [
+        {
+          "doc_id": "software_engineering_python",
+          "chunk_index": 1614,
+          "text": "using this code:\n# Code to run if the module is executed directly\nif __name__ == '__main__':\n    with get_env_database_connector() as db:\n        with db.cursor() as cursor:\n            cursor.execute"
+        },
+        {
+          "doc_id": "software_engineering_python",
+          "chunk_index": 1748,
+          "text": "None = None,\n    page_size: int | None = None,\n    page_number: int | None = None,\n    **criteria: Any\n) -> list[APIProductListItem]:\n    # Make a single query to get the relevant products\n    product"
+        },
+        {
+          "doc_id": "clean_code_python",
+          "chunk_index": 1476,
+          "text": "erent fashion, so our \nadapter method not only calls the external one, but it also translates the parameters \naccordingly, as shown in the following code:\nfrom _adapter_base import UsernameLookup\nclas"
+        },
+        {
+          "doc_id": "software_engineering_python",
+          "chunk_index": 2333,
+          "text": "'\n        f'\"{artisan_oid}\" ({type(artisan_oid).__name__}).'\n    )\n# Get the Artisan objects, keeping track of how\n# long the process takes for metrics purposes\nwith tracker.timer('artisan_db_access')"
+        },
+        {
+          "doc_id": "software_engineering_python",
+          "chunk_index": 630,
+          "text": "r_id parameter:\n# From docstrings_example_reST.py\nclass Customer(BasePerson):\n    \"\"\"\n    Represents a Customer in the system.\n    \"\"\"\n    def __init__(\n        self, customer_id, given_name, family_n"
+        }
+      ]
+    },
+    "assertions": [
+      {
+        "assertion": "should_contain_violations",
+        "passed": false,
+        "reason": "expected no violations, got: ['Potential SQL connection leak if an exception occurs before the finally block', 'Missing error handling for SQLite database connection and query execution', 'Lack of input validation for db_path and user_id parameters']"
+      },
+      {
+        "assertion": "security_score_min",
+        "passed": true,
+        "reason": "scores.security=9.0 >= 8.0"
+      },
+      {
+        "assertion": "should_have_citations",
+        "passed": true,
+        "reason": "citations present: 5"
+      }
+    ],
+    "passed": false
+  },
+  {
+    "id": "neg_clean_idiomatic_01",
+    "category": "negative_clean_secure_code",
+    "latency_s": 4.62,
+    "actual": {
+      "scores": {
+        "overall": 8.5,
+        "security": 9.0,
+        "maintainability": 8.0,
+        "readability": 9.0
+      },
+      "violations": [
+        "No input validation for non-numeric values",
+        "No handling for extremely large input sequences",
+        "No docstring for potential exceptions raised"
+      ],
+      "suggestion": "Consider adding input validation to ensure all values in the sequence are numeric, handling for large input sequences to prevent potential memory issues, and including docstrings for potential exceptions raised to improve code readability and maintainability.",
+      "sources": [
+        {
+          "doc_id": "clean_code_python",
+          "chunk_index": 1071,
+          "text": "ue: float):\n        self._total_purchases_price += new_value\n        self._total_purchases += 1\n    def __str__(self):\n        return (\n            f\"{self.__class__.__name__}({self.min_price}, \"\n    "
+        },
+        {
+          "doc_id": "clean_code_python",
+          "chunk_index": 1108,
+          "text": " function \n[TEE]), which was our main requirement. It is also possible to verify how this \nversion is equivalent to our original implementation. In this case, there is no need to \nmanually raise Value"
+        },
+        {
+          "doc_id": "software_engineering_python",
+          "chunk_index": 769,
+          "text": "aise TypeError(\n            'int_arg check: Replace this with a '\n            'meaningful error-message'\n        )\n    ...\nThe values of more complex parameter types \u2014 list and dict types in the examp"
+        },
+        {
+          "doc_id": "software_engineering_python",
+          "chunk_index": 779,
+          "text": ") is not an instance of str\nargument \"str_arg\" (object) is not an instance of str\n== invalid int_arg types ==================================\nargument \"int_arg\" (float) is not an instance of int\nargum"
+        },
+        {
+          "doc_id": "clean_code_python",
+          "chunk_index": 1069,
+          "text": "ef _initialize(self):\n        try:\n            first_value = next(self.purchases)\n        except StopIteration:\n            raise ValueError(\"no values provided\")\n        self.min_price = self.max_pri"
+        }
+      ]
+    },
+    "assertions": [
+      {
+        "assertion": "should_contain_violations",
+        "passed": false,
+        "reason": "expected no violations, got: ['No input validation for non-numeric values', 'No handling for extremely large input sequences', 'No docstring for potential exceptions raised']"
+      },
+      {
+        "assertion": "security_score_min",
+        "passed": true,
+        "reason": "scores.security=9.0 >= 8.0"
+      },
+      {
+        "assertion": "maintainability_score_min",
+        "passed": true,
+        "reason": "scores.maintainability=8.0 >= 8.0"
+      },
+      {
+        "assertion": "readability_score_min",
+        "passed": true,
+        "reason": "scores.readability=9.0 >= 8.0"
+      },
+      {
+        "assertion": "should_have_citations",
+        "passed": true,
+        "reason": "citations present: 5"
+      }
+    ],
+    "passed": false
+  },
+  {
+    "id": "rag_grounding_sql_security_01",
+    "category": "rag_grounding",
+    "request_error": "Client error '429 Too Many Requests' for url 'http://localhost:8000/analyze'\nFor more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/429",
+    "assertions": [],
+    "passed": false
+  },
+  {
+    "id": "rag_grounding_clean_code_01",
+    "category": "rag_grounding",
+    "request_error": "Client error '429 Too Many Requests' for url 'http://localhost:8000/analyze'\nFor more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/429",
+    "assertions": [],
+    "passed": false
+  },
+  {
+    "id": "rag_grounding_threat_modeling_01",
+    "category": "rag_grounding",
+    "request_error": "Client error '429 Too Many Requests' for url 'http://localhost:8000/analyze'\nFor more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/429",
+    "assertions": [],
+    "passed": false
+  }
+]

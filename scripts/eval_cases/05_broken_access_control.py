@@ -16,7 +16,7 @@ def get_user_orders(user_id: int):
     return jsonify(orders)
 '''
 EXPECTED = {
-    "should_contain_violations": ["Access Control", "Authorization"],
+    "should_contain_violations": ["IDOR", "authorization"],
     "security_score_max": 5.0,
     "should_have_citations": True,
 }

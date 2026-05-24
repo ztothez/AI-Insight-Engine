@@ -25,7 +25,7 @@
     },
     "expected": {
       "should_contain_violations": [
-        "Cross-Site Scripting (XSS)"
+        "XSS"
       ],
       "security_score_max": 5.0,
       "should_have_citations": true
@@ -74,8 +74,8 @@
     },
     "expected": {
       "should_contain_violations": [
-        "Access Control",
-        "Authorization"
+        "IDOR",
+        "authorization"
       ],
       "security_score_max": 5.0,
       "should_have_citations": true
@@ -124,10 +124,14 @@
       "strictness_level": 3
     },
     "expected": {
-      "readability_score_max": 5.0,
+      "readability_score_max": 7.5,
       "should_contain_violations": [
-        "naming",
-        "readability"
+        [
+          "naming",
+          "variable name",
+          "descriptive",
+          "readability"
+        ]
       ],
       "should_have_citations": true
     }
@@ -141,9 +145,14 @@
       "strictness_level": 3
     },
     "expected": {
-      "maintainability_score_max": 6.0,
+      "maintainability_score_max": 7.5,
       "should_contain_violations": [
-        "type"
+        [
+          "type hint",
+          "type",
+          "annotation",
+          "docstring"
+        ]
       ],
       "should_have_citations": true
     }

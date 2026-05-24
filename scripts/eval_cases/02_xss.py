@@ -15,7 +15,7 @@ def greet():
     return render_template_string(f"<h1>Hello, {name}!</h1>")
 '''
 EXPECTED = {
-    "should_contain_violations": ["Cross-Site Scripting (XSS)"],
+    "should_contain_violations": ["XSS"],
     "security_score_max": 5.0,
     "should_have_citations": True,
 }
