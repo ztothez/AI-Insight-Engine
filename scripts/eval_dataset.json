@@ -1,0 +1,257 @@
+[
+  {
+    "id": "sec_sql_injection_01",
+    "category": "security_owasp_a03_injection",
+    "input": {
+      "code_snippet": "import sqlite3\nfrom typing import Any\n\ndef search_customers(db_path: str, search: str, status: str = \"active\") -> list[dict[str, Any]]:\n    conn = sqlite3.connect(db_path)\n    conn.row_factory = sqlite3.Row\n\n    query = f\"\"\"\n        SELECT id, full_name, email, company, status, created_at\n        FROM customers\n        WHERE status = '{status}'\n          AND (\n              full_name LIKE '%{search}%'\n              OR email LIKE '%{search}%'\n              OR company LIKE '%{search}%'\n          )\n        ORDER BY created_at DESC\n        LIMIT 25\n    \"\"\"\n\n    rows = conn.execute(query).fetchall()\n    conn.close()\n\n    return [dict(row) for row in rows]\n",
+      "language": "python",
+      "strictness_level": 3
+    },
+    "expected": {
+      "should_contain_violations": [
+        "SQL Injection"
+      ],
+      "security_score_max": 5.0,
+      "should_have_citations": true
+    }
+  },
+  {
+    "id": "sec_xss_01",
+    "category": "security_owasp_a03_injection",
+    "input": {
+      "code_snippet": "from flask import Flask, request, render_template_string\n\napp = Flask(__name__)\n\n@app.route(\"/greet\")\ndef greet():\n    name = request.args.get(\"name\", \"Guest\")\n    # Vulnerable to XSS if 'name' is not properly sanitized\n    return render_template_string(f\"<h1>Hello, {name}!</h1>\")\n",
+      "language": "python",
+      "strictness_level": 3
+    },
+    "expected": {
+      "should_contain_violations": [
+        "Cross-Site Scripting (XSS)"
+      ],
+      "security_score_max": 5.0,
+      "should_have_citations": true
+    }
+  },
+  {
+    "id": "sec_command_injection_01",
+    "category": "security_owasp_a03_injection",
+    "input": {
+      "code_snippet": "import subprocess\n\ndef ping_host(hostname: str) -> str:\n    \"\"\"Ping a hostname and return the output.\"\"\"\n    result = subprocess.run(\n        f\"ping -c 3 {hostname}\",\n        shell=True,\n        capture_output=True,\n        text=True,\n    )\n    return result.stdout\n",
+      "language": "python",
+      "strictness_level": 3
+    },
+    "expected": {
+      "should_contain_violations": [
+        "Command Injection"
+      ],
+      "security_score_max": 5.0,
+      "should_have_citations": true
+    }
+  },
+  {
+    "id": "sec_hardcoded_secret_01",
+    "category": "security_owasp_a07_auth_failures",
+    "input": {
+      "code_snippet": "import requests\n\nAPI_KEY = \"sk-prod-9f8e7d6c5b4a3210fedcba9876543210\"\nSTRIPE_SECRET = \"sk_live_51HxJpYKZvKuYvKuYvKuY\"\n\ndef fetch_user_data(user_id: int) -> dict:\n    response = requests.get(\n        f\"https://api.example.com/users/{user_id}\",\n        headers={\"Authorization\": f\"Bearer {API_KEY}\"},\n    )\n    return response.json()\n",
+      "language": "python",
+      "strictness_level": 3
+    },
+    "expected": {
+      "should_contain_violations": [
+        "Hardcoded",
+        "Secret"
+      ],
+      "security_score_max": 5.0,
+      "should_have_citations": true
+    }
+  },
+  {
+    "id": "sec_broken_access_01",
+    "category": "security_owasp_a01_broken_access",
+    "input": {
+      "code_snippet": "from flask import Flask, jsonify\n\napp = Flask(__name__)\n\n@app.route(\"/api/users/<int:user_id>/orders\")\ndef get_user_orders(user_id: int):\n    # No authentication or authorization check\n    # Any caller can read any user's orders just by changing the URL\n    orders = db.query(\"SELECT * FROM orders WHERE user_id = %s\", (user_id,))\n    return jsonify(orders)\n",
+      "language": "python",
+      "strictness_level": 3
+    },
+    "expected": {
+      "should_contain_violations": [
+        "Access Control",
+        "Authorization"
+      ],
+      "security_score_max": 5.0,
+      "should_have_citations": true
+    }
+  },
+  {
+    "id": "sec_weak_crypto_01",
+    "category": "security_owasp_a02_crypto_failures",
+    "input": {
+      "code_snippet": "import hashlib\n\ndef hash_password(password: str) -> str:\n    \"\"\"Hash a user password before storing it in the database.\"\"\"\n    return hashlib.md5(password.encode()).hexdigest()\n\ndef verify_password(password: str, stored_hash: str) -> bool:\n    return hash_password(password) == stored_hash\n",
+      "language": "python",
+      "strictness_level": 3
+    },
+    "expected": {
+      "should_contain_violations": [
+        "Crypto",
+        "Hash"
+      ],
+      "security_score_max": 5.0,
+      "should_have_citations": true
+    }
+  },
+  {
+    "id": "clean_god_function_01",
+    "category": "clean_code_violation",
+    "input": {
+      "code_snippet": "def process_order(order_data):\n    # Validate the order\n    if not order_data.get(\"items\"):\n        raise ValueError(\"No items\")\n    if order_data.get(\"total\", 0) <= 0:\n        raise ValueError(\"Invalid total\")\n\n    # Calculate tax\n    tax = order_data[\"total\"] * 0.24\n    order_data[\"tax\"] = tax\n    order_data[\"grand_total\"] = order_data[\"total\"] + tax\n\n    # Send confirmation email\n    import smtplib\n    server = smtplib.SMTP(\"smtp.example.com\", 587)\n    server.login(\"noreply@example.com\", \"password123\")\n    server.sendmail(\"noreply@example.com\", order_data[\"email\"],\n                    f\"Subject: Order\\n\\nYour total is {order_data['grand_total']}\")\n    server.quit()\n\n    # Save to database\n    import sqlite3\n    conn = sqlite3.connect(\"orders.db\")\n    conn.execute(\"INSERT INTO orders VALUES (?, ?, ?)\",\n                 (order_data[\"id\"], order_data[\"email\"], order_data[\"grand_total\"]))\n    conn.commit()\n\n    # Log to file\n    with open(\"/var/log/orders.log\", \"a\") as f:\n        f.write(f\"Order {order_data['id']} processed\\n\")\n\n    # Trigger fulfillment webhook\n    import requests\n    requests.post(\"https://warehouse.example.com/fulfill\", json=order_data)\n\n    return order_data\n",
+      "language": "python",
+      "strictness_level": 3
+    },
+    "expected": {
+      "maintainability_score_max": 5.0,
+      "should_contain_violations": [
+        "function",
+        "responsibility"
+      ],
+      "should_have_citations": true
+    }
+  },
+  {
+    "id": "clean_bad_naming_01",
+    "category": "clean_code_violation",
+    "input": {
+      "code_snippet": "def calc(d, t, r):\n    x = d * r\n    y = x * t\n    z = y + (y * 0.05)\n    if z > 1000:\n        a = z * 0.9\n    else:\n        a = z\n    return a\n\ndef do_it(lst):\n    r = []\n    for i in lst:\n        v = calc(i[\"d\"], i[\"t\"], i[\"r\"])\n        r.append({\"id\": i[\"id\"], \"v\": v})\n    return r\n",
+      "language": "python",
+      "strictness_level": 3
+    },
+    "expected": {
+      "readability_score_max": 5.0,
+      "should_contain_violations": [
+        "naming",
+        "readability"
+      ],
+      "should_have_citations": true
+    }
+  },
+  {
+    "id": "clean_no_type_hints_01",
+    "category": "clean_code_violation",
+    "input": {
+      "code_snippet": "def fetch_user(user_id):\n    user = db.get(user_id)\n    if user:\n        return user\n    return None\n\ndef update_user(user_id, data):\n    user = fetch_user(user_id)\n    if not user:\n        return False\n    for key, value in data.items():\n        user[key] = value\n    db.save(user)\n    return True\n\ndef process(items):\n    results = []\n    for item in items:\n        result = transform(item)\n        if result:\n            results.append(result)\n    return results\n",
+      "language": "python",
+      "strictness_level": 3
+    },
+    "expected": {
+      "maintainability_score_max": 6.0,
+      "should_contain_violations": [
+        "type"
+      ],
+      "should_have_citations": true
+    }
+  },
+  {
+    "id": "neg_clean_secure_01",
+    "category": "negative_clean_secure_code",
+    "input": {
+      "code_snippet": "import os\nimport logging\nfrom typing import Any\n\nlogger = logging.getLogger(__name__)\n\ndef get_api_key() -> str:\n    \"\"\"Return the API key from environment, raising if missing.\"\"\"\n    key = os.environ.get(\"API_KEY\")\n    if not key:\n        raise RuntimeError(\"API_KEY environment variable is not set\")\n    return key\n\ndef safe_divide(numerator: float, denominator: float) -> float | None:\n    \"\"\"Divide two numbers, returning None on division by zero.\"\"\"\n    if denominator == 0:\n        logger.warning(\"Attempted division by zero\")\n        return None\n    return numerator / denominator\n",
+      "language": "python",
+      "strictness_level": 3
+    },
+    "expected": {
+      "should_contain_violations": [],
+      "security_score_min": 7.0,
+      "maintainability_score_min": 7.0,
+      "should_have_citations": true
+    }
+  },
+  {
+    "id": "neg_clean_parameterized_sql_01",
+    "category": "negative_clean_secure_code",
+    "input": {
+      "code_snippet": "import sqlite3\nfrom typing import Any\n\ndef get_user_by_id(db_path: str, user_id: int) -> dict[str, Any] | None:\n    \"\"\"Fetch a single user by ID using parameterized SQL.\"\"\"\n    conn = sqlite3.connect(db_path)\n    conn.row_factory = sqlite3.Row\n    try:\n        row = conn.execute(\n            \"SELECT id, email, full_name FROM users WHERE id = ?\",\n            (user_id,),\n        ).fetchone()\n        return dict(row) if row else None\n    finally:\n        conn.close()\n",
+      "language": "python",
+      "strictness_level": 3
+    },
+    "expected": {
+      "should_contain_violations": [],
+      "security_score_min": 8.0,
+      "should_have_citations": true
+    }
+  },
+  {
+    "id": "neg_clean_idiomatic_01",
+    "category": "negative_clean_secure_code",
+    "input": {
+      "code_snippet": "from typing import Iterable\n\ndef average(numbers: Iterable[float]) -> float:\n    \"\"\"Return the arithmetic mean of a sequence of numbers.\"\"\"\n    values = list(numbers)\n    if not values:\n        raise ValueError(\"Cannot compute average of empty sequence\")\n    return sum(values) / len(values)\n",
+      "language": "python",
+      "strictness_level": 3
+    },
+    "expected": {
+      "should_contain_violations": [],
+      "security_score_min": 8.0,
+      "maintainability_score_min": 8.0,
+      "readability_score_min": 8.0,
+      "should_have_citations": true
+    }
+  },
+  {
+    "id": "rag_grounding_sql_security_01",
+    "category": "rag_grounding",
+    "input": {
+      "code_snippet": "def login(username: str, password: str):\n    query = f\"SELECT * FROM users WHERE username='{username}' AND password='{password}'\"\n    return db.execute(query).fetchone()\n",
+      "language": "python",
+      "strictness_level": 3
+    },
+    "expected": {
+      "should_contain_violations": [
+        "SQL Injection"
+      ],
+      "security_score_max": 5.0,
+      "should_have_citations": true,
+      "expected_citation_sources_any": [
+        "web_application_hackers_handbook",
+        "secure_coding_principles",
+        "web_security"
+      ]
+    }
+  },
+  {
+    "id": "rag_grounding_clean_code_01",
+    "category": "rag_grounding",
+    "input": {
+      "code_snippet": "def timing_decorator(func):\n    def wrapper(*args, **kwargs):\n        import time\n        start = time.time()\n        result = func(*args, **kwargs)\n        print(f\"{func.__name__} took {time.time() - start:.3f}s\")\n        return result\n    return wrapper\n\n@timing_decorator\ndef slow_function():\n    import time\n    time.sleep(1)\n",
+      "language": "python",
+      "strictness_level": 3
+    },
+    "expected": {
+      "maintainability_score_min": 6.0,
+      "should_have_citations": true,
+      "expected_citation_sources_any": [
+        "clean_code_python",
+        "software_engineering_python"
+      ]
+    }
+  },
+  {
+    "id": "rag_grounding_threat_modeling_01",
+    "category": "rag_grounding",
+    "input": {
+      "code_snippet": "from flask import Flask, request\n\napp = Flask(__name__)\n\n@app.route(\"/admin/delete_user\", methods=[\"POST\"])\ndef delete_user():\n    # Trust boundary violation: trusts client-supplied 'is_admin' flag\n    user_id = request.json[\"user_id\"]\n    is_admin = request.json.get(\"is_admin\", False)\n    if is_admin:\n        db.execute(\"DELETE FROM users WHERE id = %s\", (user_id,))\n        return {\"status\": \"deleted\"}\n    return {\"status\": \"forbidden\"}, 403\n",
+      "language": "python",
+      "strictness_level": 3
+    },
+    "expected": {
+      "should_contain_violations": [
+        "Trust",
+        "Access Control",
+        "Authorization"
+      ],
+      "security_score_max": 4.0,
+      "should_have_citations": true,
+      "expected_citation_sources_any": [
+        "threat_modeling",
+        "security_engineering",
+        "secure_coding_principles"
+      ]
+    }
+  }
+]
