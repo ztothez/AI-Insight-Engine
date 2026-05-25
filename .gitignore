@@ -48,3 +48,4 @@ build/
 
 # Docker
 *.env.docker
+docs/CODE_REFERENCE.md
