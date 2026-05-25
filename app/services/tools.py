@@ -7,6 +7,7 @@ def check_code_complexity(code_snippet: str) -> dict:
     Analyzes the structural complexity of a code snippet. Returns line count, number of functions defined, and maximum nesting depth. Use this tool when you need to assess how complex or maintainable a piece of code is.
     """
 
+    # Function logic: summarize size and nesting indicators used by the agent.
     lines = [l for l in code_snippet.splitlines() if l.strip()]  # ignore blank lines
     line_count = len(lines)
     function_count = code_snippet.count("def ")
@@ -23,7 +24,7 @@ def search_best_practices(topic: str) -> str:
         """
         Searches for best practices related to a given programming topic. Use this tool when you want to find guidelines or recommendations for writing better code in a specific area.
         """
-        # Placeholder implementation - in a real implementation, this would query a knowledge base or API
+        # Function logic: provide the agent with a small built-in guidance lookup.
         best_practices = {
             "python": "Use list comprehensions for concise code, follow PEP 8 style guide, and prefer using 'with' statements for file handling.",
             "javascript": "Use 'const' and 'let' instead of 'var', follow Airbnb JavaScript style guide, and use promises or async/await for asynchronous code."
@@ -38,6 +39,7 @@ def calculate_risk_score(security: float, maintainability: float, readability: f
     Use this when you need to assess overall code risk from individual quality scores.
     Returns risk_score (0-10) and risk_level (Low/Medium/High).
     """
+    # Function logic: weight weaker quality scores into a business-facing risk level.
     risk_score = (10 - security) * 0.5 + (10 - maintainability) * 0.3 + (10 - readability) * 0.2
     risk_level = "Low" if risk_score < 3 else "Medium" if risk_score < 7 else "High"
     return {

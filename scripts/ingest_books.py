@@ -15,14 +15,17 @@ BOOKS = [
 ]
 
 async def main():
+    # STEP 1: Open a database session for the complete ingestion run.
     async with async_session() as db:
         for book in BOOKS:
+            # STEP 2: Extract searchable text from each reference document.
             print(f"Ingesting {book['doc_id']}...")
             doc = fitz.open(book["path"])
             text = ""
             for page in doc:
                 text += page.get_text()
             doc.close()
+            # STEP 3: Chunk and store the document as vector-search evidence.
             embeddings = await ingest_document(text, book["doc_id"], db)
             print(f"✅ Stored {len(embeddings)} chunks for {book['doc_id']}")
 

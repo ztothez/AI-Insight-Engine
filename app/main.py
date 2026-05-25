@@ -17,20 +17,24 @@ from app.routes.agent import router as agent_router
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    # Function logic: ensure database tables exist before serving requests.
     await init_db()
     yield
 
 
+# STEP 1: Configure shared API behavior and error handling.
 app = FastAPI(lifespan=lifespan)
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 app.add_exception_handler(RequestValidationError, validation_exception_handler)
 app.add_exception_handler(HTTPException, http_exception_handler)
 app.add_exception_handler(Exception, unhandled_exception_handler)
+
+# STEP 2: Expose the agent and analysis business workflows.
 app.include_router(agent_router)
 app.include_router(analyze_router)
 
 @app.get("/health")
 def health_check():
+    # Function logic: provide a lightweight availability check.
     return {"status": "200 OK"}
-

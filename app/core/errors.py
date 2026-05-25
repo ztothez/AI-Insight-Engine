@@ -3,6 +3,7 @@ from fastapi.responses import JSONResponse
 from fastapi.exceptions import RequestValidationError
 
 async def validation_exception_handler(request: Request, exc: RequestValidationError):
+    # Function logic: return one consistent response for invalid API fields.
     return JSONResponse(
         status_code=422,
         content={
@@ -13,6 +14,7 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
     )
 
 async def http_exception_handler(request: Request, exc):
+    # Function logic: preserve intentional API status codes and messages.
     return JSONResponse(
         status_code=exc.status_code,
         content={
@@ -23,6 +25,7 @@ async def http_exception_handler(request: Request, exc):
     )
 
 async def unhandled_exception_handler(request: Request, exc: Exception):
+    # Function logic: hide unexpected internal failures behind a safe response.
     return JSONResponse(
         status_code=500,
         content={

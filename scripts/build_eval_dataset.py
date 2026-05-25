@@ -19,6 +19,7 @@ from pathlib import Path
 
 def load_case(path: Path) -> dict:
     """Load a single test case .py file as a Python module and extract its variables."""
+    # Function logic: turn a readable Python fixture into API input and expectations.
     spec = importlib.util.spec_from_file_location(path.stem, path)
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
@@ -35,11 +36,14 @@ def load_case(path: Path) -> dict:
 
 
 def main():
+    # STEP 1: Discover individual evaluation cases in a stable order.
     cases_dir = Path(__file__).parent / "eval_cases"
     case_files = sorted(cases_dir.glob("*.py"))
 
+    # STEP 2: Convert the cases into the dataset consumed by the evaluator.
     dataset = [load_case(p) for p in case_files]
 
+    # STEP 3: Write a reproducible JSON dataset for evaluation runs.
     output_path = Path(__file__).parent / "eval_dataset.json"
     with open(output_path, "w") as f:
         json.dump(dataset, f, indent=2)

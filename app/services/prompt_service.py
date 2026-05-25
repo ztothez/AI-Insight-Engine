@@ -22,6 +22,7 @@ Strictness level: {{strictness_level}}
 
 Strictness level is an integer from 1 to 10..."""
 def build_user_prompt(code_snippet: str, language: str, strictness_level: int, context: str = "") -> str:
+    # Function logic: combine the user code and any retrieved evidence for review.
     context_section = f"Relevant context from knowledge base:\n{context}" if context else ""
     return USER_PROMPT_TEMPLATE.format(
         language=language,

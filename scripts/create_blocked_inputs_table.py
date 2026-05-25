@@ -9,6 +9,7 @@ from app.db.models import Base
 
 
 async def main():
+    # Function logic: synchronize the audit-log table with registered models.
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
     print("✓ Schema sync complete")

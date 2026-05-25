@@ -14,9 +14,11 @@ engine = create_async_engine(DATABASE_URL, echo=os.getenv('SQLALCHEMY_ECHO', 'fa
 async_session = sessionmaker(engine, expire_on_commit=False, class_=AsyncSession)
 
 async def get_db() -> AsyncGenerator[AsyncSession, None]:
+    # Function logic: provide one managed database session per API request.
     async with async_session() as session:
         yield session
 
 async def init_db():
+    # Function logic: create any registered tables missing at startup.
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)

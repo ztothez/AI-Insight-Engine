@@ -37,11 +37,12 @@ async def log_blocked_input(
 
     Never raises. On DB failure, logs to loguru and returns silently.
     """
+    # STEP 1: Ignore accepted input because this table records blocks only.
     if result.is_safe:
-        # Defensive guard — caller should never log a safe result, but be tolerant.
         logger.warning("log_blocked_input called with is_safe=True result; ignoring")
         return
 
+    # STEP 2: Store rejection evidence without interrupting the client response.
     try:
         row = BlockedInput(
             client_ip=client_ip,
@@ -60,5 +61,5 @@ async def log_blocked_input(
             f"length={row.input_length}"
         )
     except Exception as e:
-        # Audit failure must not crash the request — log it and move on.
+        # Function logic: audit failure is reported internally, not to the client.
         logger.error(f"Failed to write blocked_inputs row: {e}")

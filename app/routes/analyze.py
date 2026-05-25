@@ -10,15 +10,12 @@ from app.core.limiter import limiter
 from app.core.input_validator import validate_code_input
 from app.core.block_logger import log_blocked_input
 from app.services.llm_service import analyze_code
-
+from app.core.llm_retry import LLMUnavailable
 
 router = APIRouter()
 
 
-# Generic message returned to the client on any rejection.
-# Deliberately vague — does NOT reveal which pattern matched.
-# Same message for prompt-injection attacks AND for users who just sent
-# the wrong thing. Silent rejection — deny attackers iteration feedback.
+# Function logic: keep rejection reasons internal while giving clients one safe response.
 _REJECTION_MESSAGE = (
     "Your input doesn't appear to be a code snippet. "
     "Please submit code in a supported language."
@@ -32,8 +29,7 @@ async def analyze(
     body: AnalyzeRequest,
     db: AsyncSession = Depends(get_db),
 ):
-    # STEP 0: Input validation (prompt-injection / non-code guard).
-    # Runs BEFORE the DB write so blocked inputs don't pollute analysis_requests.
+    # STEP 1: Reject unsafe or non-code input before saving an analysis request.
     validation = validate_code_input(body.code_snippet)
     if not validation.is_safe:
         client_ip = request.client.host if request.client else None
@@ -45,13 +41,13 @@ async def analyze(
             client_ip=client_ip,
             user_agent=user_agent,
         )
-        # Same generic message regardless of which pattern matched.
+        # Function logic: record the reason internally, but do not expose it.
         raise HTTPException(status_code=400, detail=_REJECTION_MESSAGE)
 
-    # STEP 1: Log the incoming (now-validated) request
+    # STEP 2: Log the accepted request for operational visibility.
     logger.debug(f"Received analysis request: {body}")
 
-    # STEP 2: Save the request to DB
+    # STEP 3: Save the accepted request before running external analysis.
     db_request = AnalysisRequest(
         code_snippet=body.code_snippet,
         language=body.language,
@@ -62,12 +58,15 @@ async def analyze(
     await db.refresh(db_request)
     logger.info(f"Saved request to DB with id: {db_request.id}")
 
-    # STEP 3: Make HTTP call
+    # STEP 4: Run the retrieval-grounded LLM analysis.
     try:
         result, sources = await analyze_code(
             body.code_snippet, body.language, body.strictness_level, db
         )
         logger.debug(f"Received analysis response: {result}")
+    except LLMUnavailable:
+        logger.error("LLM unavailable after all retry attempts")
+        raise HTTPException(status_code=503, detail="Service temporarily unavailable")
     except httpx.HTTPError as e:
         logger.error(f"HTTP error during code analysis: {e}")
         raise
@@ -75,6 +74,7 @@ async def analyze(
         logger.error(f"Unexpected error during code analysis: {e}")
         raise
 
+    # STEP 5: Shape and validate the response returned by the API.
     analysis_response = AnalyzeResponse(
         scores=QualityScore(
             overall=result["overall"],
@@ -87,7 +87,7 @@ async def analyze(
         sources=sources,
     )
 
-    # STEP 5: Save the response to DB
+    # STEP 6: Persist the scored result for traceability.
     db_response = AnalysisResponse(
         request_id=db_request.id,
         overall_score=result["overall"],
@@ -102,5 +102,5 @@ async def analyze(
     await db.refresh(db_response)
     logger.info(f"Saved response to DB with id: {db_response.id}")
 
-    # STEP 6: Return the response
+    # STEP 7: Return the structured result and its source citations.
     return analysis_response

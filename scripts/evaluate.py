@@ -124,6 +124,7 @@ ASSERTION_CHECKERS = {
 
 def run_case(client: httpx.Client, case: dict) -> dict:
     """Send one case to /analyze, check every assertion, return a result record."""
+    # STEP 1: Submit one known code sample to the live analysis API.
     case_id = case["id"]
     print(f"\n→ {case_id} ({case['category']})")
 
@@ -143,6 +144,7 @@ def run_case(client: httpx.Client, case: dict) -> dict:
             "passed": False,
         }
 
+    # STEP 2: Compare the analysis response with each expected outcome.
     assertion_results = []
     for assertion_name, expected_value in case["expected"].items():
         checker = ASSERTION_CHECKERS.get(assertion_name)
@@ -163,6 +165,7 @@ def run_case(client: httpx.Client, case: dict) -> dict:
         marker = "✓" if passed else "✗"
         print(f"    {marker} {assertion_name}: {reason}")
 
+    # STEP 3: Return a traceable result record for summary reporting.
     all_passed = all(r["passed"] for r in assertion_results)
     return {
         "id": case_id,
@@ -177,6 +180,7 @@ def run_case(client: httpx.Client, case: dict) -> dict:
 # ---------- Summary reporting ----------
 
 def print_summary(results: list[dict]) -> None:
+    # Function logic: show outcome totals, category trends, and failure details.
     total = len(results)
     passed = sum(1 for r in results if r["passed"])
 
@@ -224,10 +228,12 @@ def print_summary(results: list[dict]) -> None:
 # ---------- Main ----------
 
 def main() -> None:
+    # STEP 1: Load the prepared evaluation examples.
     with open(DATASET_PATH) as f:
         dataset = json.load(f)
     print(f"Loaded {len(dataset)} test cases from {DATASET_PATH.name}")
 
+    # STEP 2: Run each example through the API with rate-limit spacing.
     results = []
     with httpx.Client() as client:
         for i, case in enumerate(dataset):
@@ -235,6 +241,7 @@ def main() -> None:
                 time.sleep(4.0)  # avoid tripping the rate limiter
             results.append(run_case(client, case))
 
+    # STEP 3: Persist detailed evidence and print a readable scorecard.
     with open(RESULTS_PATH, "w") as f:
         json.dump(results, f, indent=2)
     print(f"\nResults written to {RESULTS_PATH.name}")

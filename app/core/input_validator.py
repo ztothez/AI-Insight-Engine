@@ -138,6 +138,7 @@ def _looks_like_code(text: str) -> bool:
     Returns True if the text either is too short to judge, or contains
     at least 2 code indicators. False otherwise.
     """
+    # Function logic: accept short input or require multiple code signals.
     if len(text.strip()) < _MIN_CODE_LENGTH:
         return True  # too short to reject — let it through
 
@@ -156,6 +157,7 @@ def validate_code_input(code_snippet: str) -> ValidationResult:
     The reason and matched_pattern are for SERVER-SIDE LOGGING ONLY.
     Callers must NOT echo these back to the user.
     """
+    # STEP 1: Reject empty submissions as unusable analysis input.
     if not code_snippet or not code_snippet.strip():
         return ValidationResult(
             is_safe=False,
@@ -163,7 +165,7 @@ def validate_code_input(code_snippet: str) -> ValidationResult:
             matched_pattern="empty input",
         )
 
-    # Check for known injection patterns first (more specific)
+    # STEP 2: Block known prompt-manipulation patterns before LLM processing.
     for pattern, reason, label in _INJECTION_PATTERNS:
         if pattern.search(code_snippet):
             return ValidationResult(
@@ -172,7 +174,7 @@ def validate_code_input(code_snippet: str) -> ValidationResult:
                 matched_pattern=label,
             )
 
-    # Then check the soft "is this even code?" heuristic
+    # STEP 3: Reject prose-like input that lacks enough code indicators.
     if not _looks_like_code(code_snippet):
         return ValidationResult(
             is_safe=False,
@@ -180,4 +182,5 @@ def validate_code_input(code_snippet: str) -> ValidationResult:
             matched_pattern="no code indicators detected",
         )
 
+    # STEP 4: Approve code-like input that passed all security checks.
     return ValidationResult(is_safe=True)

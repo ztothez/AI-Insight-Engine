@@ -2,7 +2,7 @@
   {
     "id": "sec_sql_injection_01",
     "category": "security_owasp_a03_injection",
-    "latency_s": 10.27,
+    "latency_s": 7.27,
     "actual": {
       "scores": {
         "overall": 6.5,
@@ -11,12 +11,11 @@
         "readability": 9.0
       },
       "violations": [
-        "SQL Injection Vulnerability: The query string is formatted using string formatting, which makes it vulnerable to SQL injection attacks.",
-        "Insecure Database Connection: The database connection is not properly secured, and the connection string is not validated.",
-        "Lack of Error Handling: The code does not handle errors properly, which can lead to unexpected behavior and security vulnerabilities.",
-        "Insecure Data Retrieval: The code retrieves data from the database without proper validation and sanitization, which can lead to security vulnerabilities."
+        "SQL Injection Vulnerability: The query string is formatted using user input without proper sanitization.",
+        "Potential Resource Leak: The database connection is not closed in a finally block or using a with statement.",
+        "Insecure Direct Object Reference: The status parameter is not validated or sanitized, potentially allowing unauthorized access to customer data."
       ],
-      "suggestion": "To improve the security and maintainability of the code, consider using parameterized queries or prepared statements to prevent SQL injection attacks. Additionally, validate and sanitize user input data, and implement proper error handling mechanisms. Use a secure database connection and consider using an ORM (Object-Relational Mapping) library to improve the security and maintainability of the code. For example, use the `sqlite3` library's `execute` method with a parameterized query, such as `conn.execute('SELECT * FROM customers WHERE status = ? AND full_name LIKE ?', (status, f'%{search}%'))`.",
+      "suggestion": "To improve security, consider using parameterized queries or an ORM to prevent SQL injection. Use a with statement to ensure the database connection is closed properly. Validate and sanitize the status parameter to prevent insecure direct object reference. Additionally, consider implementing input validation and error handling to improve maintainability and readability.",
       "sources": [
         {
           "doc_id": "software_engineering_python",
@@ -67,7 +66,7 @@
   {
     "id": "sec_xss_01",
     "category": "security_owasp_a03_injection",
-    "latency_s": 6.1,
+    "latency_s": 6.01,
     "actual": {
       "scores": {
         "overall": 4.5,
@@ -80,7 +79,7 @@
         "Lack of input validation for 'name' parameter",
         "Insecure use of render_template_string with user-controlled data"
       ],
-      "suggestion": "To fix the potential XSS vulnerability, use the `Markup` class from the `markupsafe` library to escape the user input. For example, `from markupsafe import Markup` and then `return render_template_string(f'<h1>Hello, {Markup.escape(name)}!</h1>')`. Additionally, consider using a templating engine like Jinja2 to separate presentation logic from application logic. Validate and sanitize all user input to prevent security vulnerabilities.",
+      "suggestion": "To fix the potential XSS vulnerability, use the 'MarkupSafe' library to escape user input. Replace the line 'return render_template_string(f\"<h1>Hello, {name}!</h1>\")' with 'from markupsafe import escape; return render_template_string(f\"<h1>Hello, {escape(name)}!</h1>\")'. Additionally, consider using Flask's built-in templating engine with a separate template file instead of render_template_string for better security and maintainability.",
       "sources": [
         {
           "doc_id": "software_engineering_python",
@@ -131,7 +130,7 @@
   {
     "id": "sec_command_injection_01",
     "category": "security_owasp_a03_injection",
-    "latency_s": 10.39,
+    "latency_s": 6.85,
     "actual": {
       "scores": {
         "overall": 6.5,
@@ -145,7 +144,7 @@
         "No error handling for the case where the subprocess.run call fails",
         "Potential denial of service (DoS) vulnerability due to the lack of timeout in the subprocess.run call"
       ],
-      "suggestion": "To improve the security of this code, consider using the subprocess.run function with the capture_output and text parameters, but avoid using shell=True. Instead, pass the command and arguments as a list. Additionally, validate the input hostname parameter to prevent command injection attacks. Implement error handling for the subprocess.run call and consider adding a timeout to prevent DoS attacks. For example: result = subprocess.run(['ping', '-c', '3', hostname], capture_output=True, text=True)",
+      "suggestion": "To improve the security of this code, consider using the subprocess.run function with the capture_output and text parameters, but avoid using shell=True. Instead, pass the command and its arguments as a list. Additionally, validate the input hostname parameter to prevent potential command injection attacks. Implement error handling for the subprocess.run call and consider adding a timeout to prevent potential DoS vulnerabilities. For example: result = subprocess.run(['ping', '-c', '3', hostname], capture_output=True, text=True)",
       "sources": [
         {
           "doc_id": "web_security",
@@ -196,7 +195,7 @@
   {
     "id": "sec_hardcoded_secret_01",
     "category": "security_owasp_a07_auth_failures",
-    "latency_s": 3.95,
+    "latency_s": 2.58,
     "actual": {
       "scores": {
         "overall": 4.5,
@@ -210,7 +209,7 @@
         "Missing input validation for user_id",
         "Potential information disclosure through API responses"
       ],
-      "suggestion": "Consider using environment variables or a secure secrets management system to store API keys and secrets. Implement error handling and input validation to prevent potential security vulnerabilities. Use a logging mechanism to handle errors and exceptions instead of returning raw API responses.",
+      "suggestion": "Consider using environment variables or a secure secrets management system to store API keys and secrets. Implement try-except blocks to handle API request errors and validate user input to prevent potential security vulnerabilities. Additionally, ensure that API responses do not disclose sensitive information.",
       "sources": [
         {
           "doc_id": "web_security",
@@ -261,7 +260,7 @@
   {
     "id": "sec_broken_access_01",
     "category": "security_owasp_a01_broken_access",
-    "latency_s": 3.46,
+    "latency_s": 4.69,
     "actual": {
       "scores": {
         "overall": 4.5,
@@ -272,9 +271,10 @@
       "violations": [
         "Missing authentication and authorization checks",
         "Potential SQL injection vulnerability",
-        "Insecure direct object reference (IDOR) vulnerability"
+        "Insecure direct object reference (IDOR) vulnerability",
+        "Lack of input validation and sanitization"
       ],
-      "suggestion": "To improve the security of this code, consider adding authentication and authorization checks to ensure that only authorized users can access the orders of other users. Additionally, use parameterized queries or an ORM to prevent SQL injection vulnerabilities. To prevent IDOR vulnerabilities, validate and sanitize user input, and use a secure method to generate and validate user IDs. Consider using a library like Flask-Login or Flask-Security to handle authentication and authorization. For example, you can use the `@login_required` decorator to protect the `get_user_orders` function, and use the `current_user` object to validate the user ID.",
+      "suggestion": "To improve the security of this code, consider adding authentication and authorization checks to ensure that only authorized users can access the orders of other users. Additionally, use parameterized queries or prepared statements to prevent SQL injection attacks. Validate and sanitize all user input to prevent IDOR and other vulnerabilities. Consider using a library like OWASP ESAPI to help with authentication and authorization. For maintainability, consider breaking down the code into smaller functions, each with a single responsibility. For readability, consider adding more comments and docstrings to explain the purpose of each section of code.",
       "sources": [
         {
           "doc_id": "software_engineering_python",
@@ -325,7 +325,7 @@
   {
     "id": "sec_weak_crypto_01",
     "category": "security_owasp_a02_crypto_failures",
-    "latency_s": 6.38,
+    "latency_s": 2.54,
     "actual": {
       "scores": {
         "overall": 4.5,
@@ -390,7 +390,7 @@
   {
     "id": "clean_god_function_01",
     "category": "clean_code_violation",
-    "latency_s": 10.42,
+    "latency_s": 3.3,
     "actual": {
       "scores": {
         "overall": 6.5,
@@ -399,15 +399,14 @@
         "readability": 8.0
       },
       "violations": [
-        "Hardcoded credentials in the smtplib login",
-        "Potential SQL injection vulnerability in the sqlite3 execute statement",
-        "Missing error handling for the requests post call",
-        "Potential file path traversal vulnerability in the log file write",
-        "Missing validation for the order_data dictionary",
-        "OWASP Top 10: A03:2021-Injection (SQL injection)",
-        "OWASP Top 10: A07:2021-Identification and Authentication Failures (hardcoded credentials)"
+        "Hardcoded credentials in smtplib login",
+        "Potential SQL injection vulnerability in sqlite3 execute",
+        "Missing error handling for smtplib and sqlite3 operations",
+        "Missing validation for order_data dictionary keys",
+        "Potential information disclosure in log file",
+        "Missing input validation for requests.post"
       ],
-      "suggestion": "Consider using environment variables or a secure secrets management system to store sensitive credentials. Validate and sanitize user input to prevent SQL injection and file path traversal vulnerabilities. Implement error handling for external API calls and consider using a more robust logging mechanism. Refactor the code to follow clean code practices and consider using a more secure and maintainable way to store and retrieve data.",
+      "suggestion": "Consider using environment variables or a secure secrets manager to store credentials, parameterize SQL queries to prevent injection, implement comprehensive error handling, validate dictionary keys, and use a secure logging mechanism. Additionally, validate user input for requests.post to prevent potential security vulnerabilities.",
       "sources": [
         {
           "doc_id": "software_engineering_python",
@@ -445,7 +444,7 @@
       {
         "assertion": "should_contain_violations",
         "passed": false,
-        "reason": "missing expected ['function', 'responsibility'] in violations ['Hardcoded credentials in the smtplib login', 'Potential SQL injection vulnerability in the sqlite3 execute statement', 'Missing error handling for the requests post call', 'Potential file path traversal vulnerability in the log file write', 'Missing validation for the order_data dictionary', 'OWASP Top 10: A03:2021-Injection (SQL injection)', 'OWASP Top 10: A07:2021-Identification and Authentication Failures (hardcoded credentials)']"
+        "reason": "missing expected ['function', 'responsibility'] in violations ['Hardcoded credentials in smtplib login', 'Potential SQL injection vulnerability in sqlite3 execute', 'Missing error handling for smtplib and sqlite3 operations', 'Missing validation for order_data dictionary keys', 'Potential information disclosure in log file', 'Missing input validation for requests.post']"
       },
       {
         "assertion": "should_have_citations",
@@ -458,22 +457,23 @@
   {
     "id": "clean_bad_naming_01",
     "category": "clean_code_violation",
-    "latency_s": 6.72,
+    "latency_s": 7.78,
     "actual": {
       "scores": {
         "overall": 6.5,
         "security": 8.0,
-        "maintainability": 5.0,
-        "readability": 7.0
+        "maintainability": 6.0,
+        "readability": 5.0
       },
       "violations": [
-        "Insecure function naming (calc, do_it)",
-        "Missing type hints for function parameters",
-        "Missing docstrings for functions",
-        "Potential division by zero error (not applicable in this case, but could be in similar functions)",
-        "Variable naming could be more descriptive (d, t, r, x, y, z, a, i, v, r, lst)"
+        "Variable names are not descriptive",
+        "Function names are not descriptive",
+        "No input validation",
+        "No error handling",
+        "No type hints for function parameters",
+        "No docstrings for functions"
       ],
-      "suggestion": "Consider using more descriptive variable and function names, adding type hints for function parameters, and including docstrings to improve code readability and maintainability. Additionally, consider using a more robust method for handling potential errors, such as using try-except blocks or validating input data.",
+      "suggestion": "Consider using more descriptive variable and function names, add input validation and error handling, use type hints for function parameters, and include docstrings for functions to improve readability and maintainability. For example, the 'calc' function could be renamed to 'calculate_price_with_tax_and_discount' and the 'do_it' function could be renamed to 'process_price_calculations'. Additionally, consider using a more robust way to handle potential errors, such as using try-except blocks.",
       "sources": [
         {
           "doc_id": "clean_code_python",
@@ -506,7 +506,7 @@
       {
         "assertion": "readability_score_max",
         "passed": true,
-        "reason": "scores.readability=7.0 <= 7.5"
+        "reason": "scores.readability=5.0 <= 7.5"
       },
       {
         "assertion": "should_contain_violations",
@@ -524,7 +524,7 @@
   {
     "id": "clean_no_type_hints_01",
     "category": "clean_code_violation",
-    "latency_s": 11.29,
+    "latency_s": 4.7,
     "actual": {
       "scores": {
         "overall": 6.5,
@@ -535,11 +535,10 @@
       "violations": [
         "Insecure Direct Object Reference (IDOR) vulnerability in fetch_user function",
         "Lack of input validation in update_user function",
-        "Potential SQL injection vulnerability in db.get and db.save functions",
         "Missing error handling in process function",
         "Unclear function purpose and variable naming in process function"
       ],
-      "suggestion": "To improve the security and maintainability of the code, consider adding input validation and error handling to the update_user and process functions. Additionally, use parameterized queries or prepared statements to prevent SQL injection vulnerabilities. Use clear and descriptive variable names and function purposes to improve readability. Consider implementing authentication and authorization mechanisms to prevent IDOR vulnerabilities.",
+      "suggestion": "To improve the security and maintainability of the code, consider adding input validation and error handling to the update_user and process functions. Additionally, use parameterized queries or prepared statements to prevent SQL injection vulnerabilities. Consider using more descriptive variable names and function purposes to improve readability. For example, the fetch_user function could be renamed to get_user_by_id, and the process function could be renamed to transform_items. The update_user function could validate the user_id and data parameters before updating the user.",
       "sources": [
         {
           "doc_id": "clean_code_python",
@@ -577,7 +576,7 @@
       {
         "assertion": "should_contain_violations",
         "passed": false,
-        "reason": "missing expected [\"any of ['type hint', 'type', 'annotation', 'docstring']\"] in violations ['Insecure Direct Object Reference (IDOR) vulnerability in fetch_user function', 'Lack of input validation in update_user function', 'Potential SQL injection vulnerability in db.get and db.save functions', 'Missing error handling in process function', 'Unclear function purpose and variable naming in process function']"
+        "reason": "missing expected [\"any of ['type hint', 'type', 'annotation', 'docstring']\"] in violations ['Insecure Direct Object Reference (IDOR) vulnerability in fetch_user function', 'Lack of input validation in update_user function', 'Missing error handling in process function', 'Unclear function purpose and variable naming in process function']"
       },
       {
         "assertion": "should_have_citations",
@@ -590,7 +589,7 @@
   {
     "id": "neg_clean_secure_01",
     "category": "negative_clean_secure_code",
-    "latency_s": 7.09,
+    "latency_s": 4.93,
     "actual": {
       "scores": {
         "overall": 8.5,
@@ -600,12 +599,12 @@
       },
       "violations": [
         "Missing error handling in get_api_key function for potential KeyError",
-        "Potential division by zero error in safe_divide function, consider using try-except block",
+        "Potential division by zero error in safe_divide function not handled as an exception",
         "No validation for API key format in get_api_key function",
         "No logging configuration for logger in get_api_key function",
         "No input validation for safe_divide function"
       ],
-      "suggestion": "Consider adding try-except blocks for potential errors, validate API key format, configure logging for logger, and add input validation for safe_divide function. For example, use try-except block to handle KeyError in get_api_key function, and use regular expression to validate API key format. Also, consider using a more robust logging configuration, such as using a logging framework like Loguru or structlog, and add input validation for safe_divide function to prevent division by zero errors.",
+      "suggestion": "Consider adding try-except blocks for potential exceptions, input validation for function parameters, and logging configuration for the logger. Additionally, validate the API key format to prevent potential security vulnerabilities. For example, use a try-except block to handle the KeyError exception when getting the API key from the environment variables, and use a regular expression to validate the API key format. Also, consider using a more specific exception type instead of RuntimeError in the get_api_key function.",
       "sources": [
         {
           "doc_id": "software_engineering_python",
@@ -638,7 +637,7 @@
       {
         "assertion": "should_contain_violations",
         "passed": false,
-        "reason": "expected no violations, got: ['Missing error handling in get_api_key function for potential KeyError', 'Potential division by zero error in safe_divide function, consider using try-except block', 'No validation for API key format in get_api_key function', 'No logging configuration for logger in get_api_key function', 'No input validation for safe_divide function']"
+        "reason": "expected no violations, got: ['Missing error handling in get_api_key function for potential KeyError', 'Potential division by zero error in safe_divide function not handled as an exception', 'No validation for API key format in get_api_key function', 'No logging configuration for logger in get_api_key function', 'No input validation for safe_divide function']"
       },
       {
         "assertion": "security_score_min",
@@ -661,7 +660,7 @@
   {
     "id": "neg_clean_parameterized_sql_01",
     "category": "negative_clean_secure_code",
-    "latency_s": 10.64,
+    "latency_s": 4.71,
     "actual": {
       "scores": {
         "overall": 8.5,
@@ -670,11 +669,12 @@
         "readability": 9.0
       },
       "violations": [
-        "Potential SQL connection leak if an exception occurs before the finally block",
-        "Missing error handling for SQLite connection and query execution",
-        "No validation for user_id parameter"
+        "Potential SQL connection leak if an exception occurs before the finally block is executed",
+        "No input validation for db_path and user_id parameters",
+        "No error handling for SQLite database connection errors",
+        "No logging or monitoring for database query performance or errors"
       ],
-      "suggestion": "Consider using a context manager to handle the SQLite connection, add try-except blocks to handle potential errors, and validate the user_id parameter to prevent potential SQL injection attacks. For example, use a decorator or a separate function to validate the user_id parameter, and use a try-except block to catch and handle any exceptions that may occur during the execution of the query.",
+      "suggestion": "Consider using a context manager to handle the SQLite connection, add input validation for db_path and user_id parameters, implement error handling for database connection errors, and add logging or monitoring for database query performance or errors. For example, use a try-except block to catch and log any exceptions that occur during database operations, and consider using a library like logging or structlog to handle logging. Additionally, consider using a more robust database connection library like sqlalchemy or pandas to handle database connections and queries.",
       "sources": [
         {
           "doc_id": "software_engineering_python",
@@ -707,7 +707,7 @@
       {
         "assertion": "should_contain_violations",
         "passed": false,
-        "reason": "expected no violations, got: ['Potential SQL connection leak if an exception occurs before the finally block', 'Missing error handling for SQLite connection and query execution', 'No validation for user_id parameter']"
+        "reason": "expected no violations, got: ['Potential SQL connection leak if an exception occurs before the finally block is executed', 'No input validation for db_path and user_id parameters', 'No error handling for SQLite database connection errors', 'No logging or monitoring for database query performance or errors']"
       },
       {
         "assertion": "security_score_min",
@@ -725,7 +725,7 @@
   {
     "id": "neg_clean_idiomatic_01",
     "category": "negative_clean_secure_code",
-    "latency_s": 7.3,
+    "latency_s": 3.11,
     "actual": {
       "scores": {
         "overall": 8.5,
@@ -799,7 +799,7 @@
   {
     "id": "rag_grounding_sql_security_01",
     "category": "rag_grounding",
-    "latency_s": 11.21,
+    "latency_s": 2.07,
     "actual": {
       "scores": {
         "overall": 2.0,
@@ -808,12 +808,12 @@
         "readability": 6.0
       },
       "violations": [
-        "SQL Injection Vulnerability",
+        "SQL Injection Vulnerability (OWASP A03:2021)",
         "Plain Text Password Storage",
         "Lack of Input Validation",
-        "Insecure Query Construction"
+        "Lack of Error Handling"
       ],
-      "suggestion": "To fix the SQL injection vulnerability, use parameterized queries or prepared statements. Store passwords securely using a password hashing algorithm like bcrypt or Argon2. Validate user input to prevent malicious data from entering the database. Consider using an ORM to construct queries securely. For example, use SQLAlchemy in Python: `from sqlalchemy import text; query = text('SELECT * FROM users WHERE username = :username AND password = :password'); result = db.execute(query, {'username': username, 'password': password}).fetchone()`",
+      "suggestion": "To fix the SQL injection vulnerability, use parameterized queries or prepared statements. Store passwords securely using a password hashing algorithm like bcrypt, Argon2, or PBKDF2. Validate user input to prevent malicious data from entering the database. Implement error handling to handle unexpected errors and exceptions. Consider using an ORM (Object-Relational Mapping) library to interact with the database, which can help prevent SQL injection attacks.",
       "sources": [
         {
           "doc_id": "web_app_hackers_handbook",
@@ -869,7 +869,7 @@
   {
     "id": "rag_grounding_clean_code_01",
     "category": "rag_grounding",
-    "latency_s": 5.21,
+    "latency_s": 4.8,
     "actual": {
       "scores": {
         "overall": 6.5,
@@ -883,7 +883,7 @@
         "Function slow_function is sleeping for 1 second, potential performance issue",
         "Decorator timing_decorator is doing more than one thing, consider breaking it down into smaller decorators"
       ],
-      "suggestion": "Consider using functools.wraps to preserve original function metadata, break down the timing_decorator into smaller decorators each with a specific responsibility, and avoid using sleep in production code. The code can be improved by moving the import statement to the top level and using a more specific and limited responsibility for the decorator.",
+      "suggestion": "Consider using functools.wraps to preserve original function metadata, break down the timing_decorator into smaller decorators for logging and timing, and avoid using sleep in production code. The code can be improved by moving the import statement to the top level and using a more specific and limited responsibility for the decorator.",
       "sources": [
         {
           "doc_id": "clean_code_python",
@@ -934,7 +934,7 @@
   {
     "id": "rag_grounding_threat_modeling_01",
     "category": "rag_grounding",
-    "latency_s": 8.71,
+    "latency_s": 5.18,
     "actual": {
       "scores": {
         "overall": 4.5,
@@ -948,7 +948,7 @@
         "Insecure Direct Object Reference (IDOR)",
         "Trust boundary violation"
       ],
-      "suggestion": "To improve security, validate and sanitize user input, implement proper access control mechanisms, and use parameterized queries to prevent SQL injection. Additionally, consider using a more secure method to verify admin privileges, such as using a secure token or authentication mechanism. For maintainability, consider breaking down the code into smaller functions and using more descriptive variable names. For readability, consider adding comments to explain the purpose of the code and using consistent naming conventions.",
+      "suggestion": "To improve the security of this code, consider implementing proper access control mechanisms, such as authentication and authorization, to prevent unauthorized access to sensitive operations like deleting users. Additionally, use parameterized queries or prepared statements to prevent SQL injection attacks. Validate and sanitize user input to prevent IDOR vulnerabilities. Consider using a more secure way to verify admin privileges, such as using a secure token or a separate authentication mechanism. Refactor the code to follow the principle of least privilege and separate concerns to improve maintainability and readability.",
       "sources": [
         {
           "doc_id": "software_engineering_python",
