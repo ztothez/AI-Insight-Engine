@@ -13,7 +13,7 @@ from app.core.limiter import limiter
 from slowapi.errors import RateLimitExceeded
 from slowapi import _rate_limit_exceeded_handler
 from app.routes.agent import router as agent_router
-
+from app.routes.audit import router as audit_router
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -33,7 +33,7 @@ app.add_exception_handler(Exception, unhandled_exception_handler)
 # STEP 2: Expose the agent and analysis business workflows.
 app.include_router(agent_router)
 app.include_router(analyze_router)
-
+app.include_router(audit_router)
 @app.get("/health")
 def health_check():
     # Function logic: provide a lightweight availability check.
