@@ -87,3 +87,53 @@ curl -X POST http://localhost:8000/analyze \
 - **top_k=5:** balances context richness vs prompt size vs latency
 - **Pydantic validation of LLM output:** catches hallucinated or malformed scores before they reach the client
 - **Separate schemas for API vs LLM output:** `AnalyzeResponse` vs `LLMAnalysisResult`, different contracts, different validation rules
+
+## Data Handling and GDPR Considerations
+
+This is a demonstrator project, not a production deployment. The notes below describe what data the running system processes and what would be required for GDPR-compliant production use.
+
+### What data the system processes
+
+When a user submits code via `POST /analyze`:
+- The full `code_snippet` is stored in the `analysis_requests` table (Postgres).
+- LLM-generated scores and violations are stored in `analysis_responses`.
+- Submitted code is transmitted to Together.ai (US-hosted) for inference.
+
+When the input validator blocks a request:
+- The full rejected input is stored in `blocked_inputs`.
+- The client IP address and User-Agent header are stored alongside it.
+
+Code snippets may contain personal data the user did not intend to share — names in mock data, email addresses in test fixtures, API keys, or production identifiers. The system treats all `code_snippet` content as potentially containing personal data.
+
+### Lawful basis (GDPR Art. 6)
+
+For this demonstrator, no lawful basis is established. A production deployment would likely rely on legitimate interest (Art. 6(1)(f)) for security analysis, or explicit consent (Art. 6(1)(a)) if the service is end-user-facing.
+
+### Retention
+
+The current implementation has no automatic retention policy — data is kept indefinitely in Postgres. Production deployment would require:
+- 30-90 day retention for `analysis_requests` and `analysis_responses`
+- Separate, longer retention for `blocked_inputs` (audit trail), with access controls
+- Automated purge job (e.g. nightly cron) and documented retention schedule
+
+### User rights (GDPR Art. 15-17)
+
+- **Art. 15 (right of access):** Not implemented. Production would need a mechanism to export a user's stored data.
+- **Art. 16 (rectification):** Largely not applicable — submitted code is a point-in-time artifact, not a profile.
+- **Art. 17 (right to erasure):** Not implemented. Production would need a deletion endpoint or admin tool that removes all rows tied to a user identifier.
+
+### Cross-border transfer (Schrems II)
+
+Together.ai is US-hosted. Sending EU user data to a US service raises Schrems II concerns. Production options:
+- Switch to an EU-region LLM provider (e.g. Mistral via EU-hosted endpoint).
+- Sign a Data Processing Agreement (DPA) with Together.ai that addresses Standard Contractual Clauses and supplementary measures.
+- Add a PII redaction layer before transmission, so identifiable content never leaves EU infrastructure.
+
+### Production hardening checklist
+
+- [ ] Encryption at rest (RDS-level encryption, or Postgres TDE)
+- [ ] PII redaction pipeline before storage and before LLM transmission
+- [ ] Access controls on the `blocked_inputs` audit table
+- [ ] Automated retention purge job
+- [ ] Data Protection Impact Assessment (DPIA) if the deployment context warrants it
+- [ ] Documented Data Processing Agreement with all third-party processors
