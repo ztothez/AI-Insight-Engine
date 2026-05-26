@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>AI Insight Engine — Security-aware code review</title>
+    <meta
+      name="description"
+      content="Paste Python code and get OWASP-mapped security findings with citations from real security books."
+    />
+    <link rel="stylesheet" href="/static/css/main.css" />
+    <link rel="stylesheet" href="/static/css/landing.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to main content</a>
+
+    <header class="site-header">
+      <a class="site-brand" href="/">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/></svg>
+        AI Insight Engine
+      </a>
+      <nav class="site-nav" aria-label="Main">
+        <a class="nav-link" data-page="landing" href="/">Home</a>
+        <a class="nav-link" data-page="analyze" href="/analyze">Analyze</a>
+        <a class="nav-link" data-page="agent" href="/agent">Agent</a>
+        <a class="nav-link" href="/docs" target="_blank" rel="noopener">API Docs</a>
+      </nav>
+      <div class="header-actions">
+        <span id="health-status" class="status-pill ok" aria-live="polite">
+          <span class="status-dot" aria-hidden="true"></span> Checking…
+        </span>
+        <a class="btn btn-primary" href="/analyze">Analyze Code</a>
+      </div>
+    </header>
+
+    <main id="main" class="page-main">
+      <section class="hero">
+        <div class="hero-content">
+          <h1>Security-aware code review, grounded in real books</h1>
+          <p>
+            Paste Python. Get OWASP-mapped findings with citations — not guesswork.
+            Powered by RAG over 20,875 embeddings from security literature.
+          </p>
+          <div class="hero-actions">
+            <a class="btn btn-primary" href="/analyze">Analyze Code</a>
+            <a class="btn btn-secondary" href="/docs" target="_blank" rel="noopener">View API Docs</a>
+          </div>
+        </div>
+        <div class="hero-preview" aria-hidden="true">
+          <div class="hero-preview-bar">
+            <span class="hero-preview-dot"></span>
+            <span class="hero-preview-dot"></span>
+            <span class="hero-preview-dot"></span>
+          </div>
+          <div class="hero-preview-body">
+            <span class="highlight">query = f"SELECT * FROM users WHERE id={'{user_id}'}"</span>
+            <div class="hero-preview-scores">
+              <div class="preview-score"><strong>4.1</strong> Security</div>
+              <div class="preview-score"><strong>7.2</strong> Overall</div>
+              <div class="preview-score"><strong>A03</strong> OWASP</div>
+              <div class="preview-score"><strong>5</strong> Citations</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="trust-section" aria-labelledby="trust-heading">
+        <h2 id="trust-heading" class="section-heading">Built on verified sources</h2>
+        <div class="trust-metrics">
+          <div class="trust-metric"><strong>20,875</strong> book embeddings</div>
+          <div class="trust-metric"><strong>8</strong> security sources</div>
+          <div class="trust-metric"><strong>OWASP</strong> Top 10 mapped</div>
+          <div class="trust-metric"><strong>RAG</strong> grounded analysis</div>
+        </div>
+      </section>
+
+      <section class="how-section" aria-labelledby="how-heading">
+        <h2 id="how-heading" class="section-heading">How it works</h2>
+        <div class="steps-grid">
+          <article class="step-card card">
+            <span class="step-number">1</span>
+            <h3>Paste</h3>
+            <p>Drop a Python snippet into the Monaco editor or load a sample vulnerability.</p>
+          </article>
+          <article class="step-card card">
+            <span class="step-number">2</span>
+            <h3>Analyze</h3>
+            <p>Semantic search retrieves relevant book chunks; Llama 3.3 scores and explains issues.</p>
+          </article>
+          <article class="step-card card">
+            <span class="step-number">3</span>
+            <h3>Act</h3>
+            <p>Review violations, copy recommendations, and trace every claim to its source.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="sources-section-landing" aria-labelledby="sources-heading">
+        <h2 id="sources-heading" class="section-heading">Knowledge base</h2>
+        <div class="sources-list">
+          <span class="badge badge-neutral">Clean Code in Python</span>
+          <span class="badge badge-neutral">Secure Coding Principles</span>
+          <span class="badge badge-neutral">Web Application Hacker's Handbook</span>
+          <span class="badge badge-neutral">Security Engineering</span>
+          <span class="badge badge-neutral">Threat Modeling</span>
+          <span class="badge badge-neutral">Web Security</span>
+          <span class="badge badge-neutral">Hands-On Software Engineering</span>
+          <span class="badge badge-neutral">Secure Agile SDLC</span>
+        </div>
+      </section>
+
+      <section class="cta-section">
+        <p>Ready to audit your code?</p>
+        <a class="btn btn-primary" href="/analyze">Open Analyzer</a>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <p>
+        Code snippets may be sent to Together.ai for inference.
+        See <a href="https://github.com/ztothez/AI-Insight-Engine#data-handling-and-gdpr-considerations">data handling notes</a> in the README.
+      </p>
+    </footer>
+
+    <script type="module" src="/static/js/landing.js"></script>
+  </body>
+</html>
