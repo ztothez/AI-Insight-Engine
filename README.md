@@ -2,6 +2,15 @@
 
 A production-oriented **Code Quality & Security Auditor** built on RAG, LLM agents, and vector search. Analyzes Python code for OWASP Top 10 vulnerabilities, clean code violations, and security risks, grounded in real security literature.
 
+## Project Status
+
+**Working now:** RAG pipeline with 20,875 embeddings, FastAPI endpoints (/analyze, /agent), 
+LangGraph ReAct agent, Pydantic validation, eval pipeline with 15 test cases, input validation 
+and blocking with audit trail.
+
+**In progress:** Conversation memory for agent, expanded eval coverage, production hardening 
+(see GDPR checklist below).
+
 ## What it does
 
 Send a code snippet → get back:
