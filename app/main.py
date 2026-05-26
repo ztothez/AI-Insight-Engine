@@ -27,15 +27,14 @@ async def lifespan(app: FastAPI):
     await init_db()
     yield
 
+# STEP 1: Configure shared API behavior and error handling.
+app = FastAPI(lifespan=lifespan)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-# STEP 1: Configure shared API behavior and error handling.
-app = FastAPI(lifespan=lifespan)
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 app.add_exception_handler(RequestValidationError, validation_exception_handler)
