@@ -2,6 +2,7 @@ import httpx
 from loguru import logger
 from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy.ext.asyncio import AsyncSession
+from together import BadRequestError
 from app.core.cache import get_redis_client, make_cache_key, get_cached, set_cached
 from app.schemas.analyze import AnalyzeRequest, AnalyzeResponse, QualityScore
 from app.db.database import get_db
@@ -76,6 +77,15 @@ async def analyze(
     except LLMUnavailable:
         logger.error("LLM unavailable after all retry attempts")
         raise HTTPException(status_code=503, detail="Service temporarily unavailable")
+    except BadRequestError as e:
+        logger.error(f"Embedding API rejected input: {e}")
+        raise HTTPException(
+            status_code=400,
+            detail=(
+                "Code snippet is too long for embedding search. "
+                "Try analyzing a smaller excerpt (single function or module)."
+            ),
+        )
     except httpx.HTTPError as e:
         logger.error(f"HTTP error during code analysis: {e}")
         raise

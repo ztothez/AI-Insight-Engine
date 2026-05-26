@@ -7,15 +7,55 @@ import os
 
 load_dotenv()
 
+# Together e5-large-instruct allows 512 tokens; ~3 chars/token for code keeps us safe.
+_EMBED_MAX_CHARS = 1400
+_EMBED_MAX_SLICES = 3
+
+
+def _slices_for_embedding(text: str) -> list[str]:
+    """Split long text so each slice fits the embedding model token limit."""
+    text = text.strip()
+    if not text:
+        return [""]
+    if len(text) <= _EMBED_MAX_CHARS:
+        return [text]
+
+    if len(text) <= _EMBED_MAX_CHARS * _EMBED_MAX_SLICES:
+        slices = []
+        start = 0
+        while start < len(text) and len(slices) < _EMBED_MAX_SLICES:
+            slices.append(text[start : start + _EMBED_MAX_CHARS])
+            start += _EMBED_MAX_CHARS
+        return slices
+
+    mid = max(0, len(text) // 2 - _EMBED_MAX_CHARS // 2)
+    return [
+        text[:_EMBED_MAX_CHARS],
+        text[mid : mid + _EMBED_MAX_CHARS],
+        text[-_EMBED_MAX_CHARS:],
+    ]
+
+
+def _average_vectors(vectors: list[list[float]]) -> list[float]:
+    if len(vectors) == 1:
+        return vectors[0]
+    dim = len(vectors[0])
+    return [sum(v[i] for v in vectors) / len(vectors) for i in range(dim)]
+
+
 def get_embedding(text: str) -> list[float]:
     # Function logic: convert text into the vector format used for similarity search.
     client = Together(api_key=os.getenv("TOGETHER_API_KEY"))
-    response = client.embeddings.create(
-        model="intfloat/multilingual-e5-large-instruct",
-        input=text
-    )
+    slices = _slices_for_embedding(text)
+    vectors = []
+    for slice_text in slices:
+        response = client.embeddings.create(
+            model="intfloat/multilingual-e5-large-instruct",
+            input=slice_text,
+        )
+        vectors.append(response.data[0].embedding)
 
-    return response.data[0].embedding
+    return _average_vectors(vectors)
 
 
 async def store_embedding(text: str, doc_id: str, chunk_index: int, db: AsyncSession) -> CodeEmbedding:
