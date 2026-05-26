@@ -2,7 +2,7 @@ import httpx
 from loguru import logger
 from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy.ext.asyncio import AsyncSession
-
+from app.core.cache import get_redis_client, make_cache_key, get_cached, set_cached
 from app.schemas.analyze import AnalyzeRequest, AnalyzeResponse, QualityScore
 from app.db.database import get_db
 from app.db.models import AnalysisRequest, AnalysisResponse
@@ -13,6 +13,7 @@ from app.services.llm_service import analyze_code
 from app.core.llm_retry import LLMUnavailable
 
 router = APIRouter()
+redis_client = get_redis_client()
 
 
 # Function logic: keep rejection reasons internal while giving clients one safe response.
@@ -46,6 +47,14 @@ async def analyze(
 
     # STEP 2: Log the accepted request for operational visibility.
     logger.debug(f"Received analysis request: {body}")
+
+    # STEP 2.5: Check cache before hitting the LLM
+    cache_key = make_cache_key(body.code_snippet, body.language, body.strictness_level)
+    cached = await get_cached(redis_client, cache_key)
+    if cached:
+        logger.info(f"Cache hit for key {cache_key[:16]}...")
+        return AnalyzeResponse(**cached)
+    logger.info(f"Cache miss for key {cache_key[:16]}...")
 
     # STEP 3: Save the accepted request before running external analysis.
     db_request = AnalysisRequest(
@@ -103,4 +112,5 @@ async def analyze(
     logger.info(f"Saved response to DB with id: {db_response.id}")
 
     # STEP 7: Return the structured result and its source citations.
+    await set_cached(redis_client, cache_key, analysis_response.model_dump())
     return analysis_response

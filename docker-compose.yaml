@@ -11,6 +11,25 @@ services:
       - "${DB_PORT_HOST}:${DB_PORT_CONTAINER}"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6380:6379"
+  backend:
+    build: .
+    env_file:
+      - .env
+    environment:
+      DB_HOST: postgres
+      DB_PORT: ${DB_PORT_CONTAINER}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_NAME: ${DB_NAME}
+      REDIS_URL: ${REDIS_URL}
+    ports:
+      - "8001:8000"
+    depends_on:
+      - postgres
+      - redis
 volumes:
   postgres_data:
