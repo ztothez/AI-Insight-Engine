@@ -15,10 +15,6 @@ docker-compose.override.yml
 *.sql
 *.dump
 
-# Test files
-test_*.py
-tests/test_*.py
-
 # Python
 __pycache__/
 *.py[cod]
@@ -47,6 +43,5 @@ build/
 # Logs
 *.log
 
-# Docker
-*.env.docker
+# Generated docs
 docs/CODE_REFERENCE.md
