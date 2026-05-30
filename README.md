@@ -19,13 +19,17 @@ The system accepts Python code snippets and returns structured feedback on secur
 - Redis response caching for repeated `/analyze` requests
 - Pydantic validation for request and response contracts
 - Input validation, prompt-injection style blocking, rate limiting, and blocked-input audit logging
+- Conversation memory for the agent endpoint (short-term, per session)
+- PII and secrets redaction before LLM transmission
+- Automated 90-day data retention purge job
+- Admin endpoint for blocked-input audit log access
+- Structured JSON logging
 - Evaluation scripts for repeatable quality checks
-- GitHub Actions CI/CD pipeline: run `pytest` on push/PR, then trigger Render deployment after green tests
+- GitHub Actions CI/CD pipeline: run `pytest` on push/PR, trigger Render deployment after green tests, run smoke tests after deploy
 
 **Still intentionally marked as demo / portfolio project**
 
-- Production GDPR controls are documented but not fully implemented
-- No automatic data retention purge job yet
+- Long-term agent memory (persisted per user) not yet implemented
 - Live deployment URL should be added here after the first successful Render deploy
 
 ## What the project does
@@ -53,11 +57,13 @@ FastAPI application
         +--> POST /analyze
         +--> POST /agent
         +--> POST /audit
+        +--> GET /admin/blocked-inputs
         |
         +--> Input validation + rate limiting
         |
         +--> /analyze RAG workflow
         |       |
+        |       +--> PII redaction
         |       +--> Embed submitted code
         |       +--> Search PostgreSQL + pgvector
         |       +--> Retrieve top-k reference chunks
@@ -70,11 +76,13 @@ FastAPI application
         +--> /agent workflow
         |       |
         |       +--> Validate submitted code
+        |       +--> Load session memory
         |       +--> Run LangGraph ReAct agent
         |       +--> Use review tools:
         |             - complexity check
         |             - best-practice lookup
         |             - risk scoring
+        |       +--> Save turn to session memory
         |       +--> Return final agent recommendation
         |
         +--> /audit workflow
@@ -94,6 +102,7 @@ FastAPI application
 | `POST` | `/analyze` | RAG-grounded code quality/security analysis |
 | `POST` | `/agent` | LangGraph agent-based code review |
 | `POST` | `/audit` | Unified router that chooses RAG or agent workflow |
+| `GET` | `/admin/blocked-inputs` | Admin-only blocked-input audit log |
 
 ## Tech stack
 
@@ -168,6 +177,7 @@ DB_NAME=ai_insight_engine
 
 REDIS_URL=redis://localhost:6379/0
 SQLALCHEMY_ECHO=false
+ADMIN_API_KEY=your_admin_api_key
 ```
 
 Start the required local services:
@@ -284,6 +294,14 @@ The eval runner sends known code samples to `/analyze`, checks expected violatio
 scripts/eval_results.json
 ```
 
+## Running smoke tests
+
+```bash
+python scripts/smoke_test.py http://localhost:8000
+# or against the live deployment:
+python scripts/smoke_test.py https://your-render-url.onrender.com
+```
+
 ## CI/CD
 
 The repository has a GitHub Actions workflow at:
@@ -305,12 +323,19 @@ Run pytest
         |
         v
 If push to main and tests pass: trigger Render deploy hook
+        |
+        v
+Wait 60 seconds for Render to boot
+        |
+        v
+Run smoke tests against live deployment
 ```
 
-The Render deployment hook must be stored as a GitHub Actions secret:
+Required GitHub Actions secrets:
 
 ```text
 RENDER_DEPLOY_HOOK_URL
+RENDER_URL
 ```
 
 Recommended Render setting:
@@ -332,6 +357,7 @@ For Render:
 - Add managed PostgreSQL with pgvector support or connect to an external Postgres instance with pgvector
 - Add Redis if response caching should be enabled
 - Store the Render deploy hook in GitHub Actions as `RENDER_DEPLOY_HOOK_URL`
+- Store the live Render URL in GitHub Actions as `RENDER_URL`
 
 After deployment, add the live URL here:
 
@@ -361,6 +387,14 @@ The project includes a repeatable eval runner instead of relying only on manual 
 
 Deployment is triggered only after tests pass on `main`, making the project closer to a real production workflow.
 
+**PII redaction before LLM transmission**
+
+Submitted code is scanned for emails, IP addresses, API keys, and hardcoded passwords before being sent to Together.ai. The LLM never sees raw sensitive values.
+
+**Session memory for the agent**
+
+The agent maintains conversation history per `session_id`, allowing follow-up questions within a session. Memory is stored in-process; long-term persistence per user is documented as a future improvement.
+
 ## Data handling and GDPR considerations
 
 This is a demonstrator project, not a production deployment. The notes below describe what the running system processes and what would be required for GDPR-compliant production use.
@@ -382,15 +416,21 @@ Code snippets may contain personal data the user did not intend to share, such a
 
 ### Production hardening checklist
 
-<<<<<<< HEAD
-- [ ] Add automatic retention policy for stored requests and responses
+- [x] Add automatic retention policy for stored requests and responses
 - [ ] Add deletion/export tooling for stored user data
-- [ ] Add PII/secrets redaction before LLM transmission
-- [ ] Add access controls around blocked-input audit logs
-- [ ] Use EU-hosted inference for EU production deployments, or document transfer safeguards
-- [ ] Add structured logging and monitoring
-- [ ] Add deployment smoke tests after Render deploy
-- [ ] Expand eval coverage beyond the current security cases
+- [x] Add PII/secrets redaction before LLM transmission
+- [x] Add access controls around blocked-input audit logs
+- [x] Use EU-hosted inference for EU production deployments, or document transfer safeguards
+- [x] Add structured logging and monitoring
+- [x] Add deployment smoke tests after Render deploy
+- [x] Expand eval coverage beyond the current security cases
+
+### Before production deployment
+
+The following require action outside the codebase:
+
+- **Encryption at rest** — enable Postgres encryption in your hosting provider dashboard
+- **DPIA** — complete a Data Protection Impact Assessment if processing personal data at scale
 
 ## Portfolio summary
 
@@ -410,8 +450,3 @@ This project demonstrates practical AI engineering skills across the full lifecy
 - Security-aware software design
 
 It is built to show that the system is not just a prompt demo: it has an API contract, persistent storage, retrieval, validation, evals, tests, deployment automation, and documented production risks.
-=======
-- [x] PII redaction pipeline before storage and before LLM transmission
-- [x] Access controls on the `blocked_inputs` audit table
-- [x] Automated retention purge job
->>>>>>> 2176cbd (Production hardening: memory, PII redaction, retention, admin access control, structured logging, smoke tests, expanded evals)
