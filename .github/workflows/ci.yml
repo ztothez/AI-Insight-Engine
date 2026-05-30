@@ -65,7 +65,7 @@ jobs:
         run: pip install httpx
 
       - name: Wait for Render to come up
-        run: sleep 30
+        run: sleep 60
 
       - name: Run smoke tests
         env:
