@@ -70,5 +70,10 @@ jobs:
       - name: Run smoke tests
         env:
           RENDER_URL: ${{ secrets.RENDER_URL }}
-        run: python scripts/smoke_test.py $RENDER_URL
+        run: |
+          if [ -z "$RENDER_URL" ]; then
+            echo "RENDER_URL not set, skipping smoke tests"
+            exit 0
+          fi
+          python scripts/smoke_test.py $RENDER_URL
     
