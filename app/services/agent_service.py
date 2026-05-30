@@ -1,9 +1,12 @@
 from langchain_ollama import ChatOllama
 from langgraph.prebuilt import create_react_agent
 from app.services.tools import check_code_complexity, search_best_practices, calculate_risk_score
+from app.services.memory_service import MemoryService
 from loguru import logger
+memory_service = MemoryService()
 
-async def run_agent(code_snippet: str) -> str:
+
+async def run_agent(code_snippet: str, session_id: str) -> str:
     # STEP 1: Validate user input before exposing it to agent tools.
     validate_agent_input(code_snippet)
     logger.info("Agent input validated")
@@ -12,15 +15,19 @@ async def run_agent(code_snippet: str) -> str:
     llm = ChatOllama(model="qwen2.5:3b-instruct")
     tools = [check_code_complexity, search_best_practices, calculate_risk_score]
     agent = create_react_agent(llm, tools)
+    history = memory_service.get_history(session_id)
+    messages = history + [{"role": "user", "content": code_snippet}]
     
     # STEP 3: Run the agent against the submitted snippet.
     logger.info(f"Agent processing: {code_snippet[:50]}...")
-    result = await agent.ainvoke({"messages": [{"role": "user", "content": code_snippet}]})
+    result = await agent.ainvoke({"messages": messages})
     
     # STEP 4: Return the agent's final message as the endpoint result.
     output = result["messages"][-1].content
+    memory_service.append_turn(session_id, code_snippet, output)
     logger.info(f"Agent returned: {output[:50]}...")
     return output
+    
 
 def validate_agent_input(code_snippet: str) -> None:
     # Function logic: reject empty, oversized, or directive-like agent inputs.

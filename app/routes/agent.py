@@ -13,7 +13,7 @@ async def agent(request: Request, body: AgentRequest):
     
     # STEP 2: Execute the agent and translate failures to API responses.
     try:
-        result = await run_agent(body.code_snippet)
+        result = await run_agent(body.code_snippet, body.session_id)
         logger.debug(f"Agent returned result: {result}")
     except ValueError as e:
         logger.error(f"Input validation error: {e}")

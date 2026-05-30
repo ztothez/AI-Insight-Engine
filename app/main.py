@@ -1,3 +1,5 @@
+import sys
+from loguru import logger
 from fastapi import FastAPI
 from contextlib import asynccontextmanager
 from fastapi.middleware.cors import CORSMiddleware
@@ -18,14 +20,29 @@ from slowapi.errors import RateLimitExceeded
 from slowapi import _rate_limit_exceeded_handler
 from app.routes.agent import router as agent_router
 from app.routes.audit import router as audit_router
+import asyncio
+from app.core.retention import purge_old_records
+from app.db.database import get_db
+from app.routes.admin import router as admin_router
 
 STATIC_DIR = Path(__file__).resolve().parent.parent / "static"
 
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Function logic: ensure database tables exist before serving requests.
+    logger.remove()
+    logger.add(sys.stdout, format="{time:YYYY-MM-DD HH:mm:ss} | {level} | {name}:{line} | {message}", level="INFO", serialize=True)
     await init_db()
+    
+    async def run_retention_loop():
+        while True:
+            async for db in get_db():
+                await purge_old_records(db)
+            await asyncio.sleep(86400)
+    
+    task = asyncio.create_task(run_retention_loop())
     yield
+    task.cancel()
 
 # STEP 1: Configure shared API behavior and error handling.
 app = FastAPI(lifespan=lifespan)
@@ -45,24 +62,21 @@ app.add_exception_handler(Exception, unhandled_exception_handler)
 app.include_router(agent_router)
 app.include_router(analyze_router)
 app.include_router(audit_router)
+app.include_router(admin_router)
 
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
-
 
 @app.get("/")
 def landing_page():
     return FileResponse(STATIC_DIR / "index.html")
 
-
 @app.get("/analyze")
 def analyze_page():
     return FileResponse(STATIC_DIR / "analyze.html")
 
-
 @app.get("/agent")
 def agent_page():
     return FileResponse(STATIC_DIR / "agent.html")
-
 
 @app.get("/health")
 def health_check():

@@ -1,5 +1,51 @@
 [
   {
+    "id": "clean_error_handling_01",
+    "category": "clean_code_violation",
+    "input": {
+      "code_snippet": "def read_config(path):\n    try:\n        with open(path, 'r') as f:\n            return f.read()\n    except:\n        pass\n",
+      "language": "python",
+      "strictness_level": 3
+    },
+    "expected": {
+      "should_contain_violations": [
+        "Error Handling"
+      ],
+      "maintainability_score_max": 6.0,
+      "should_have_citations": true
+    }
+  },
+    {
+    "id": "clean_dead_code_01",
+    "category": "clean_code_violation",
+    "input": {
+      "code_snippet": "def calculate_total(items):\n    total = 0\n    for item in items:\n        total += item['price'] * item['quantity']\n    return total\n\n# Dead code example\nif False:\n    print(\"This will never run\")\n",
+      "language": "python",
+      "strictness_level": 3
+    },
+    "expected": {
+      "should_contain_violations": [
+        "Dead Code"
+      ],
+      "maintainability_score_max": 6.0,
+      "should_have_citations": true
+    }
+  },
+    {
+    "id": "edge_empty_input_01",
+    "category": "edge_case_empty_input",
+    "input": {
+      "code_snippet": "x = 1\n",
+      "language": "python",
+      "strictness_level": 3
+    },
+    "expected": {
+      "should_contain_violations": [],
+      "security_score_min": 8.0,
+      "should_have_citations": false
+    }
+  },
+  {
     "id": "sec_sql_injection_01",
     "category": "security_owasp_a03_injection",
     "input": {

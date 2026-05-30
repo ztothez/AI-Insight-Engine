@@ -1,4 +1,5 @@
 import json
+from multiprocessing import context
 import os
 from together import Together
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -7,11 +8,14 @@ from app.services.embedding_service import retrieve
 from app.services.prompt_service import SYSTEM_PROMPT, build_user_prompt
 from app.schemas.analyze import LLMAnalysisResult, CitationSource
 from app.core.output_filter import filter_hallucinated_violations
+from app.core.pii_redactor import redact
 
 async def analyze_code(code_snippet: str, language: str, strictness_level: int, db: AsyncSession) -> tuple[dict, list]:
     # STEP 1: Retrieve relevant knowledge-base context for the submitted code.
     context_chunks = await retrieve(code_snippet, db)
     context = "\n\n".join([chunk.text for chunk in context_chunks])
+    code_snippet = redact(code_snippet)
+    user_prompt = build_user_prompt(code_snippet, language, strictness_level, context)
 
     # STEP 2: Build an analysis prompt grounded in the retrieved context.
     user_prompt = build_user_prompt(code_snippet, language, strictness_level, context)

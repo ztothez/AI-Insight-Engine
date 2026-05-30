@@ -382,6 +382,7 @@ Code snippets may contain personal data the user did not intend to share, such a
 
 ### Production hardening checklist
 
+<<<<<<< HEAD
 - [ ] Add automatic retention policy for stored requests and responses
 - [ ] Add deletion/export tooling for stored user data
 - [ ] Add PII/secrets redaction before LLM transmission
@@ -409,3 +410,8 @@ This project demonstrates practical AI engineering skills across the full lifecy
 - Security-aware software design
 
 It is built to show that the system is not just a prompt demo: it has an API contract, persistent storage, retrieval, validation, evals, tests, deployment automation, and documented production risks.
+=======
+- [x] PII redaction pipeline before storage and before LLM transmission
+- [x] Access controls on the `blocked_inputs` audit table
+- [x] Automated retention purge job
+>>>>>>> 2176cbd (Production hardening: memory, PII redaction, retention, admin access control, structured logging, smoke tests, expanded evals)
