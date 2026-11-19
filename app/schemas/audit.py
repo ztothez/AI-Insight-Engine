@@ -5,7 +5,7 @@ from app.schemas.agent import AgentResponse
 
 class AuditRequest(AnalyzeRequest):
     """Same shape as AnalyzeRequest. Agent ignores language and strictness."""
-    pass
+    session_id: str = "audit-default"
 
 
 class AuditResponse(BaseModel):

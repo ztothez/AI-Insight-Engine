@@ -113,7 +113,7 @@ FastAPI application
 | Cache | Redis |
 | RAG embeddings | Together.ai `intfloat/multilingual-e5-large-instruct` |
 | LLM review | Together.ai `meta-llama/Llama-3.3-70B-Instruct-Turbo` |
-| Agent | LangGraph ReAct agent, LangChain, Ollama, `qwen2.5:3b-instruct` |
+| Agent | LangGraph ReAct agent, LangChain, Ollama (`OLLAMA_MODEL`, default `insightai-code`) |
 | Validation | Pydantic v2 |
 | Rate limiting | SlowAPI |
 | Testing / evals | pytest, custom eval runner |
@@ -191,7 +191,10 @@ redis-server
 Start Ollama for the agent route:
 
 ```bash
-ollama pull qwen2.5:3b-instruct
+# Preferred: InsightAI Code local model (run from AI-Insight-Model so GGUF path resolves)
+#   cd ../AI-Insight-Model && ollama create insightai-code -f Modelfile
+# Fallback: ollama pull qwen2.5:3b-instruct && export OLLAMA_MODEL=qwen2.5:3b-instruct
+export OLLAMA_MODEL=insightai-code
 ollama serve
 ```
 

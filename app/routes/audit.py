@@ -72,7 +72,8 @@ async def audit(
             return AuditResponse(route="rag", analyze_response=analyze_response)
 
         # target == RouteTarget.AGENT
-        agent_result = await run_agent(body.code_snippet)
+        session_id = getattr(body, "session_id", None) or "audit-default"
+        agent_result = await run_agent(body.code_snippet, session_id=session_id)
         agent_response = AgentResponse(result=agent_result)
         return AuditResponse(route="agent", agent_response=agent_response)
 

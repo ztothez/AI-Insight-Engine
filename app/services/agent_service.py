@@ -1,3 +1,5 @@
+import os
+
 from langchain_ollama import ChatOllama
 from langgraph.prebuilt import create_react_agent
 from app.services.tools import check_code_complexity, search_best_practices, calculate_risk_score
@@ -6,13 +8,20 @@ from loguru import logger
 memory_service = MemoryService()
 
 
-async def run_agent(code_snippet: str, session_id: str) -> str:
+def get_ollama_model() -> str:
+    """Prefer InsightAI Code local tag; fall back to stock instruct model."""
+    return os.getenv("OLLAMA_MODEL", "insightai-code") or "insightai-code"
+
+
+async def run_agent(code_snippet: str, session_id: str = "default") -> str:
     # STEP 1: Validate user input before exposing it to agent tools.
     validate_agent_input(code_snippet)
     logger.info("Agent input validated")
     
     # STEP 2: Assemble the reasoning model and available code-review tools.
-    llm = ChatOllama(model="qwen2.5:3b-instruct")
+    model_name = get_ollama_model()
+    logger.info(f"Using Ollama model: {model_name}")
+    llm = ChatOllama(model=model_name)
     tools = [check_code_complexity, search_best_practices, calculate_risk_score]
     agent = create_react_agent(llm, tools)
     history = memory_service.get_history(session_id)
